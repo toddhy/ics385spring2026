@@ -1,0 +1,59 @@
+<!-- html_AIComments.html
+     Beginner-friendly commented copy of dicee.html
+     Each comment explains the purpose of the element and basic HTML/CSS/JS interactions.
+-->
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Dicee</title>
+
+    <!-- Link to the stylesheet that controls page appearance. -->
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Google Fonts: these two fonts need internet access to load. -->
+    <link href="https://fonts.googleapis.com/css?family=Indie+Flower|Lobster" rel="stylesheet">
+
+  </head>
+  <body>
+
+    <!-- .container centers the main content and limits its width. -->
+    <div class="container">
+
+      <!-- Main heading. The text here will be replaced by JavaScript after a roll. -->
+      <h1>Refresh Me</h1>
+
+      <!-- Each .dice block contains a label and an image for one player's die. -->
+      <div class="dice">
+        <!-- A short label describing the player. Use <p> for small text blocks. -->
+        <p>Player 1</p>
+        <!-- The initial image shown here is dice6.png, but JavaScript will change it on load.
+             The class (img1) lets JavaScript select this specific image. -->
+        <img class="img1" src="images/dice6.png">
+      </div>
+
+      <div class="dice">
+        <p>Player 2</p>
+        <!-- JavaScript will replace this src with a randomly chosen dice image. -->
+        <img class="img2" src="images/dice6.png">
+      </div>
+
+      <div class="dice">
+        <p>Player 3</p>
+        <img class="img3" src="images/dice6.png">
+      </div>
+    </div>
+
+    <!-- The script tag loads the page's JavaScript. It runs after the HTML above loads.
+         The JS file picks random numbers, sets the image sources, and updates the heading.
+         If you edit index.js, refresh the page to see changes. -->
+    <script src="index.js" charset="utf-8"></script>
+
+  </body>
+
+  <!-- Footer appears after the main content. Use semantic <footer> for clarity. -->
+  <footer>
+    <!-- Text inside footer; you can replace this with author or project info. -->
+    www 🎲 App Brewery 🎲 com
+  </footer>
+</html>

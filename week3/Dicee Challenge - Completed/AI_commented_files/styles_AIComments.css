@@ -1,0 +1,82 @@
+/* styles_AIComments.css
+   Beginner-friendly commented copy of styles.css
+   Each block below includes a short explanation of what the CSS rule does
+   and why you might set those properties. */
+
+/* .container
+   - Used to center the page content and limit its width so it isn't too wide
+   - `width: 70%` makes the container 70% of the browser width
+   - `margin: auto` centers the container horizontally
+   - `text-align: center` centers inline content inside the container */
+.container {
+  width: 70%;
+  margin: auto;
+  text-align: center;
+}
+
+/* .dice
+   - This class groups the dice images so they can be aligned together
+   - `display: inline-block` keeps each dice block inline while allowing
+     block-like sizing and margins */
+.dice {
+  text-align: center;
+  display: inline-block;
+
+}
+
+/* body
+   - Sets the page background color. Use a hex value to pick any color.
+   - A darker background helps the dice and heading colors pop. */
+body {
+  background-color: #393E46;
+}
+
+/* h1 (main heading)
+   - `margin` adds space around the heading so it doesn't touch other elements
+   - `font-family` chooses a decorative font; make sure the font is loaded in HTML
+   - `text-shadow` gives a shadow to the text to create depth
+   - `font-size` controls how large the heading appears (8rem is very large)
+   - `color` sets the text color */
+h1 {
+  margin: 30px;
+  font-family: 'Lobster', cursive;
+  text-shadow: 5px 0 #232931;
+  font-size: 8rem;
+  color: #4ECCA3;
+}
+
+/* p (paragraphs)
+   - Sets a friendly handwritten font, larger text, and matching color
+   - Great for short instructions or credits on the page */
+p {
+  font-size: 2rem;
+  color: #4ECCA3;
+  font-family: 'Indie Flower', cursive;
+}
+
+/* img
+   - Controls how large images appear inside their container
+   - Using a percentage makes the image responsive to the container size
+   - Here `width: 80%` means images will take 80% of the element that contains them */
+img {
+  width: 80%;
+}
+
+/* footer
+   - Adds space above the footer and styles its text
+   - `text-align: center` centers footer content
+   - The same handwritten font is used to match page style */
+footer {
+  margin-top: 5%;
+  color: #EEEEEE;
+  text-align: center;
+  font-family: 'Indie Flower', cursive;
+
+}
+
+/* Tips for beginners:
+   - Try changing `width` values to see how layout adjusts.
+   - Replace colors to explore different themes; use an online color picker.
+   - `rem` units scale with the root font size; `px` is absolute pixels.
+   - If a font doesn't show, ensure it's imported in your HTML or available locally.
+*/
