@@ -16,7 +16,7 @@ var randomImageSource2 = "images/dice" + randomNumber2 + ".png";
 
 document.querySelectorAll("img")[1].setAttribute("src", randomImageSource2);
 
-var randomNumber3 = Math.floor(Math.random() * 6) + 1;
+var randomNumber3 = Math.floor(Math.random() * 6) + 1; //Adding third dice
 
 var randomImageSource3 = "images/dice" + randomNumber3 + ".png";
 
@@ -24,7 +24,7 @@ document.querySelectorAll("img")[2].setAttribute("src", randomImageSource3);
 
 //If player 1 wins
 if (randomNumber1 > randomNumber2 && randomNumber1 > randomNumber3) {
-  document.querySelector("h1").innerHTML = "🚩 Play 1 Wins!";
+  document.querySelector("h1").innerHTML = "Player 1 Wins! 🚩";
 }
 //If player 2 wins
 else if (randomNumber2 > randomNumber1 && randomNumber2 > randomNumber3) {

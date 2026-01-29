@@ -7,7 +7,40 @@
 .dice {
   text-align: center;
   display: inline-block;
+}
 
+.refresh-btn {
+  padding: 15px 30px;
+  font-size: 18px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.refresh-btn:hover {
+  background-color: #45a049;
+}
+
+.instructions {
+  background-color: #393E46;
+  padding: 20px;
+  margin-bottom: 30px;
+  border-radius: 8px;
+  border-left: 4px solid #393E46;
+  text-align: center;
+  font-family: 'Times New Roman', serif;
+}
+
+.instructions h2 {
+  margin-top: 0;
+  color: #FFFFFF;
+}
+
+.instructions ul {
+  line-height: 1.8;
 }
 
 body {
@@ -16,7 +49,7 @@ body {
 
 h1 {
   margin: 30px;
-  font-family: 'Lobster', cursive;
+  font-family: 'Times New Roman', serif;
   text-shadow: 5px 0 #232931;
   font-size: 8rem;
   color: #4ECCA3;
@@ -25,7 +58,7 @@ h1 {
 p {
   font-size: 2rem;
   color: #4ECCA3;
-  font-family: 'Indie Flower', cursive;
+  font-family: 'Times New Roman', serif;
 }
 
 img {
@@ -36,6 +69,6 @@ footer {
   margin-top: 5%;
   color: #EEEEEE;
   text-align: center;
-  font-family: 'Indie Flower', cursive;
+  font-family: 'Times New Roman', serif;
 
 }
