@@ -30,7 +30,7 @@ if (randomNumber1 > randomNumber2 && randomNumber1 > randomNumber3) {
 else if (randomNumber2 > randomNumber1 && randomNumber2 > randomNumber3) {
   document.querySelector("h1").innerHTML = "Player 2 Wins! 🚩";
 }
-//If player 2 wins
+//If player 3 wins
 else if (randomNumber3 > randomNumber1 && randomNumber3 > randomNumber2) {
   document.querySelector("h1").innerHTML = "Player 3 Wins! 🚩";
 }
