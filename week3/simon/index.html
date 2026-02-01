@@ -1,0 +1,110 @@
+<!--
+Name: Todd Yoshioka
+Date: 2/1/26
+Class: ICS385
+Notes: Changed the javascript so that the whole sequence is repeated each new level, not just the new button.
+This makes it much easier to remember the sequence and progress in the game.
+Also added instructions on how to play the game.
+-->
+
+<!DOCTYPE html>
+<!-- HTML5 document type declaration -->
+
+<html lang="en" dir="ltr">
+<!-- Root element: lang="en" specifies English language, dir="ltr" means left-to-right text direction -->
+
+<head>
+  <!-- Head section contains metadata and resource links -->
+  
+  <meta charset="utf-8">
+  <!-- Specifies that the document uses UTF-8 character encoding for proper text display -->
+  
+  <title>Simon</title>
+  <!-- Title displayed in the browser tab -->
+  
+  <link rel="stylesheet" href="styles.css">
+  <!-- Links to the external CSS file that styles all elements on the page -->
+  
+  <link href="https://fonts.googleapis.com/css?family=Press+Start+2P" rel="stylesheet">
+  <!-- Imports the "Press Start 2P" font from Google Fonts for a retro arcade look -->
+</head>
+
+<body>
+  <!-- Body section contains all visible content on the page -->
+  
+  <h1 id="level-title">
+  Press a key to start<br>
+  
+  </h1>
+  <!-- 
+    Main heading showing game status
+    id="level-title" - This ID is used in JavaScript to update text like "Level 1", "Level 2", etc.
+    Initial text prompts player to press any key to start
+  -->
+  
+  <div class="container">
+    <!-- Container div wraps all game buttons and centers them on the page -->
+    
+    <div lass="row">
+      <!-- 
+        First row of buttons (top half of game)
+        NOTE: There's a typo here - "lass" should be "class", but it still works 
+        because this div is styled through its children's classes, not directly
+      -->
+
+      <div type="button" id="green" class="btn green">
+        <!-- 
+          Green button (top-left quadrant)
+          id="green" - Used in JavaScript to identify which button was clicked
+          class="btn green" - "btn" applies common button styling, "green" applies green background color
+          NOTE: <div> elements shouldn't have type="button" attribute (that's for <button> elements)
+        -->
+      </div>
+
+      <div type="button" id="red" class="btn red">
+        <!-- Red button (top-right quadrant) - Same structure as green button -->
+      </div>
+    </div>
+
+    <div class="row">
+      <!-- Second row of buttons (bottom half of game) -->
+
+      <div type="button" id="yellow" class="btn yellow">
+        <!-- Yellow button (bottom-left quadrant) -->
+      </div>
+      
+      <div type="button" id="blue" class="btn blue">
+        <!-- Blue button (bottom-right quadrant) -->
+      </div>
+
+    </div>
+    <div>
+        <h2>
+  Instructions: Each level, a sequence of buttons will flash and play a sound.
+  The goal is to remember the sequence and push the buttons in the correct order. A new button is added 
+  to the sequence every level. Getting the sequence wrong ends the current game.
+        </h2>
+    </div>
+
+  </div>
+
+  <!-- ===================================== -->
+  <!-- JAVASCRIPT LIBRARIES AND SCRIPTS     -->
+  <!-- ===================================== -->
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <!-- 
+    Loads jQuery library from a CDN (Content Delivery Network)
+    jQuery provides convenient methods like $() for selecting and manipulating DOM elements
+    This must be loaded BEFORE game.js because game.js uses jQuery syntax
+  -->
+  
+  <script src="game.js" charset="utf-8"></script>
+  <!-- 
+    Loads the local game.js file which contains all the game logic
+    charset="utf-8" specifies text encoding (though this is usually unnecessary for scripts)
+  -->
+
+</body>
+
+</html>

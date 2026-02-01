@@ -1,0 +1,130 @@
+/* ========================================
+   SIMON GAME - CSS STYLES
+   This file styles the HTML elements for the Simon Says game
+   ======================================== */
+
+/* BODY AND PAGE-LEVEL STYLES */
+
+body {
+  /* Centers all text content horizontally */
+  text-align: center;
+  
+  /* Sets the background to dark blue - creates the retro game feel */
+  background-color: #011F3F;
+}
+
+/* TITLE/HEADER STYLES */
+
+#level-title {
+  /* Uses the Press Start 2P font family for retro arcade appearance
+     'cursive' is a fallback in case the custom font fails to load */
+  font-family: 'Press Start 2P', cursive;
+  
+  /* Makes the title very large - 3rem = 3 times the root font size */
+  font-size: 3rem;
+  
+  /* Sets margin (spacing around the element):
+     5% margin on top and bottom, 0 on left and right */
+  margin: 5%;
+  
+  /* Sets text color to a light cream/yellow for contrast against dark background */
+  color: #FEF2BF;
+}
+
+/* CONTAINER AND LAYOUT STYLES */
+
+.container {
+  /* Display as a block element (takes full width, causes line break) */
+  display: block;
+  
+  /* Width set to 50% of the parent (window width) */
+  width: 50%;
+  
+  /* Centers the container horizontally by auto margins on left and right */
+  margin: auto;
+}
+
+/* BUTTON STYLES - APPLIES TO ALL FOUR COLOR BUTTONS */
+
+.btn {
+  /* Margin spacing of 25px on all sides separates buttons from each other */
+  margin: 25px;
+  
+  /* Display inline-block allows buttons to sit side-by-side while respecting width/height */
+  display: inline-block;
+  
+  /* Sets button dimensions - 200px square buttons */
+  height: 200px;
+  width: 200px;
+  
+  /* Border: 10px thick black border around each button for definition */
+  border: 10px solid black;
+  
+  /* Border-radius: 20% creates rounded corners for a softer appearance
+     Higher percentage = more rounded, 50% would be a circle */
+  border-radius: 20%;
+}
+
+/* GAME OVER STATE STYLING */
+
+.game-over {
+  /* Applied to the body element when player makes a wrong choice
+     Creates a red flash effect to indicate game failure */
+  
+  /* Sets background color to red */
+  background-color: red;
+  
+  /* Opacity: 0.8 makes the red slightly transparent (0 = invisible, 1 = fully opaque)
+     This lets the underlying content show through slightly */
+  opacity: 0.8;
+}
+
+/* INDIVIDUAL BUTTON COLOR STYLES */
+
+/* Each button has its own background color class */
+
+.red {
+  /* Red button background color */
+  background-color: red;
+}
+
+.green {
+  /* Green button background color */
+  background-color: green;
+}
+
+.blue {
+  /* Blue button background color */
+  background-color: blue;
+}
+
+.yellow {
+  /* Yellow button background color */
+  background-color: yellow;
+}
+
+/* PRESSED STATE STYLING - VISUAL FEEDBACK WHEN BUTTON IS CLICKED */
+
+.pressed {
+  /* Box-shadow creates a glowing white border effect when button is active
+     Syntax: x-offset y-offset blur-radius color
+     0 0 20px white = glow spreads 20px in all directions with white color */
+  box-shadow: 0 0 20px white;
+  
+  /* Changes background color to grey when pressed
+     Combined with the white glow, this provides visual confirmation of button click */
+  background-color: grey;
+}
+
+/* AI Generated code */
+/* SUBTITLE / INSTRUCTION TEXT */
+/* Styles for <h2> used for the instructions area so it's readable and matches the theme */
+h2 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.2rem;
+  color: #FEF2BF;
+  margin: 1rem auto;
+  line-height: 1.4;
+  max-width: 700px;
+  text-align: center;
+}
