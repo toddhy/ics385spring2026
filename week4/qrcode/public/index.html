@@ -1,0 +1,284 @@
+<!--
+Name: Todd Yoshioka
+Date: 2/4/26
+Class: ICS 385
+Notes: This code is entirely generated using Claude Haiku 4.5. I also asked it to write instructive comments so I can learn from them.
+The page runs in a browser on localhost:3000. It has a text box for the user to type in their url, and a button that says generate
+QR Code. When they type url and press generate, the QR code appears in the page. I think this is more user friendly than making people
+use the terminal each time and open outputed files. They still have to start the server.js via the commandline. I couldn't
+figure a more user friendly workaround for that and didn't understand the AI suggested alternatives. Could use a batch or bash
+script if you were on their machine.
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Declare document type and language -->
+  <meta charset="UTF-8">
+  <!-- Specify character encoding for proper text rendering -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Enable responsive design for mobile devices -->
+  <title>QR Code Generator</title>
+  <!-- Page title that appears in the browser tab -->
+  <style>
+    /* CSS styles for the entire page layout and components */
+
+    /* Reset default styles for all elements */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Style the main body - creates gradient background and centers content */
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      /* Gradient goes from purple to darker purple */
+      min-height: 100vh;
+      /* Make body full screen height */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      /* Center content both horizontally and vertically */
+      padding: 20px;
+    }
+
+    /* White box that contains the form and results */
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      max-width: 600px;
+      width: 100%;
+    }
+
+    /* Page title styling */
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 30px;
+      font-size: 28px;
+    }
+
+    /* Container for form inputs */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    /* Label text for form inputs */
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #555;
+      font-weight: bold;
+    }
+
+    /* Style for text input field where user enters URL */
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #ddd;
+      border-radius: 5px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+      /* Smooth color change on focus */
+    }
+
+    /* Style when user clicks/focuses on the input field */
+    input[type="text"]:focus {
+      outline: none;
+      border-color: #667eea;
+      /* Border turns purple when focused */
+    }
+
+    /* Style for the submit button */
+    button {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    /* Hover effect - button lifts up slightly when you hover over it */
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Active effect - button returns to normal position when clicked */
+    button:active {
+      transform: translateY(0);
+    }
+
+    /* Container where the generated QR code image appears */
+    .qr-display {
+      text-align: center;
+      margin-top: 30px;
+      min-height: 250px;
+      /* Reserve space for the QR code */
+    }
+
+    /* Styling for the actual QR code image */
+    .qr-display img {
+      max-width: 250px;
+      border: 2px solid #ddd;
+      border-radius: 5px;
+      padding: 10px;
+    }
+
+    /* Loading message shown while QR code is being generated */
+    .loading {
+      display: none;
+      /* Hidden by default, shown via JavaScript */
+      text-align: center;
+      color: #667eea;
+      font-weight: bold;
+    }
+
+    /* Error message styling (shown when generation fails) */
+    .error {
+      color: #d32f2f;
+      /* Red text */
+      text-align: center;
+      margin-top: 20px;
+      padding: 10px;
+      background: #ffebee;
+      /* Light red background */
+      border-radius: 5px;
+      display: none;
+      /* Hidden by default, shown via JavaScript */
+    }
+
+    /* Success message styling (shown when QR code is generated) */
+    .success-message {
+      color: #388e3c;
+      /* Green text */
+      text-align: center;
+      margin-top: 10px;
+      display: none;
+      /* Hidden by default, shown via JavaScript */
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔲 QR Code Generator</h1>
+    
+    <!-- Form for user input -->
+    <form id="qrForm">
+      <div class="form-group">
+        <label for="urlInput">Enter your URL:</label>
+        <!-- Text input field where user types the URL -->
+        <input 
+          type="text" 
+          id="urlInput" 
+          placeholder="https://example.com" 
+          required
+        >
+      </div>
+      <!-- Submit button triggers QR code generation -->
+      <button type="submit">Generate QR Code</button>
+    </form>
+
+    <!-- Loading message displayed while generating QR code -->
+    <div class="loading" id="loading">
+      <p>Generating QR code...</p>
+    </div>
+
+    <!-- Error message displayed if generation fails -->
+    <div class="error" id="error"></div>
+    <!-- Success message displayed when QR code is created -->
+    <div class="success-message" id="successMessage">✓ QR code generated and saved!</div>
+
+    <!-- Container where the QR code image will be displayed -->
+    <div class="qr-display" id="qrDisplay"></div>
+  </div>
+
+  <!-- Load QR code library locally (no internet required) -->
+  <script src="qrcode.js"></script>
+
+  <!-- JavaScript code to handle user interactions and QR code generation -->
+  <script>
+    /* Get references to HTML elements we'll need to interact with */
+    const form = document.getElementById("qrForm");
+    /* The form element */
+    const urlInput = document.getElementById("urlInput");
+    /* Text input where user types URL */
+    const qrDisplay = document.getElementById("qrDisplay");
+    /* Container where QR code image will be displayed */
+    const loading = document.getElementById("loading");
+    /* Loading message element */
+    const error = document.getElementById("error");
+    /* Error message element */
+    const successMessage = document.getElementById("successMessage");
+    /* Success message element */
+
+    /* Listen for when user submits the form */
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      /* Prevent page from refreshing on submit */
+      
+      const url = urlInput.value.trim();
+      /* Get the URL user typed and remove whitespace */
+      
+      /* Validate that URL is not empty */
+      if (!url) {
+        error.textContent = "Please enter a URL";
+        error.style.display = "block";
+        return;
+      }
+
+      /* Clear previous results/messages before generating new QR code */
+      qrDisplay.innerHTML = "";
+      error.style.display = "none";
+      successMessage.style.display = "none";
+      loading.style.display = "block";
+      /* Show loading message */
+
+      try {
+        /* Send POST request to the server with the URL */
+        const response = await fetch("/generate-qr", {
+          method: "POST",
+          /* Use POST method to send data */
+          headers: {
+            "Content-Type": "application/json",
+            /* Tell server we're sending JSON data */
+          },
+          body: JSON.stringify({ url }),
+          /* Convert URL object to JSON string */
+        });
+
+        /* Wait for server response and parse it as JSON */
+        const data = await response.json();
+
+        /* Check if server returned successfully */
+        if (response.ok) {
+          /* Insert the QR code image into the display area */
+          qrDisplay.innerHTML = `<img src="${data.qrCode}" alt="QR Code">`;
+          /* Show success message */
+          successMessage.style.display = "block";
+        } else {
+          /* Show error message from server or generic message */
+          error.textContent = data.error || "Failed to generate QR code";
+          error.style.display = "block";
+        }
+      } catch (err) {
+        /* Handle network or other errors */
+        error.textContent = "Error: " + err.message;
+        error.style.display = "block";
+      } finally {
+        /* Always hide loading message when done (success or failure) */
+        loading.style.display = "none";
+      }
+    });
+  </script>
+</body>
+</html>

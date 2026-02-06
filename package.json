@@ -1,6 +1,9 @@
 {
   "dependencies": {
+    "express": "^5.2.1",
     "famous-last-words": "^0.6.0",
-    "popular-movie-quotes": "^1.2.4"
+    "inquirer": "^13.2.2",
+    "popular-movie-quotes": "^1.2.4",
+    "qr-image": "^3.2.0"
   }
 }
