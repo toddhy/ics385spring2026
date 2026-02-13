@@ -14,7 +14,7 @@ app.get("/", function(req, res) {
   res.sendFile(__dirname + "/index.html")
 });
 
-// this gets the response from the values in the web page
+// this gets the response from the values in the web page (index.html)
 app.post("/", function(req, res){
 
   var num1 = Number(req.body.n1);
