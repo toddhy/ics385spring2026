@@ -1,7 +1,7 @@
 <!---
 Name: Todd Yoshioka
 Class: ICS 385
-Notes: Simple Farenheit to Celsius calculator. Displays webpage with text, box and a button. When user hits
+Notes: Simple volume calculator. Displays webpage with text, two boxes and a button. When user hits
 calculate, the POST is sent to Express server, which serves up the answer as simple text on a page.
 -->
 <!DOCTYPE html>
@@ -14,8 +14,9 @@ calculate, the POST is sent to Express server, which serves up the answer as sim
 
     <h1>Farenheit to Celsius calculator</h1>
 
-    <form action="/f2c/" method="post">
-      <input type="text" name="Far" placeholder="Farenheit">
+    <form action="/VolCalc/" method="post">
+      <input type="text" name="radius" placeholder="Radius">
+      <input type="text" name="height" placeholder="Height">
       <button type="submit" name="submit">Calculate</button>
     </form>
 
