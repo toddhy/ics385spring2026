@@ -1,0 +1,10 @@
+# Environment variables - DO NOT commit to version control
+# This file contains sensitive information like passwords
+.env
+
+# Node modules
+node_modules/
+
+# System files
+.DS_Store
+Thumbs.db
