@@ -1,6 +1,6 @@
 /*
 Name: Todd Yoshioka
-Class: ICS 395
+Class: ICS 385
 Notes: Uses Express to first read index.html using GET, then takes user input from page and calculates Farenheit
 to Celsius. Answer is converted to integer and sent to page at /f2c/ using POST. It's displayed there for user to read. 
 */
@@ -12,7 +12,7 @@ const bodyParser = require("body-parser");
 //create app object
 const app = express();
 
-// Not sure what bodyparser does, need to read docs. When I remove it I get errors.
+// Bodyparser seems to be used in capturing string and converting to float.
 app.use(bodyParser.urlencoded({extended: true}));
 
 //this sends the html file to the web page using the root directory

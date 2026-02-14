@@ -13,7 +13,7 @@ const bodyParser = require("body-parser");
 //create app object
 const app = express();
 
-// Not sure what bodyparser does, need to read docs. When I remove it I get errors.
+// I think bodyparser has something to do with converting captured string to float.
 app.use(bodyParser.urlencoded({extended: true}));
 
 //this sends the html file to the web page using the root directory
@@ -26,7 +26,7 @@ app.get("/", function(req, res) {
 app.post("/VolCalc/", function (req, res) {
 
   //converts the string input to a float number
-  //Captures string from the height and radius values from body of index.html
+  //Captures string from the height and radius values from body of index.html. Parser converts string to float?
   var rad = parseFloat(req.body.radius);
   var hgt = parseFloat(req.body.height);
 
