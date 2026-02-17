@@ -1,12 +1,12 @@
 <%- include("partials/solution-header.ejs") %>
 
-  <% if (locals.adjective && locals.noun) { %>
+  <% if (locals.course_id && locals.course_name) { %>
     <h1>
-      <%= adjective %>
-        <%= noun %>
+      <%= course_id %>
+        <%= course_name %>
     </h1>
     <% } else { %>
-      <h1>Welcome to the Band Generator 🤟</h1>
+      <h1>Welcome to Random Course Generator</h1>
       <% } %>
 
 
