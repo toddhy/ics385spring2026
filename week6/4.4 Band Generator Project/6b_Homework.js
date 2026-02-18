@@ -1,3 +1,10 @@
+/*
+Name: Todd Yoshioka
+Course: ICS 385
+Notes: Replaced noun and adj arrays with course_id and course_name arrays. Changed the variable names in the POST section to reflect the new array and variable
+names. This still references "solution.ejs" to render the html, I just changed the displayed title in that page from band generator to course name generator. 
+*/
+
 import express from "express";
 import bodyParser from "body-parser";
 
