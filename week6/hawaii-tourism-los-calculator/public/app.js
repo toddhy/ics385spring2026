@@ -144,6 +144,14 @@ function displayResults(data) {
 
 // Create chart using Chart.js
 function createChart(chartData) {
+    // Check if Chart.js library loaded successfully
+    if (typeof Chart === 'undefined') {
+        console.error('Chart.js library not loaded. Check CDN availability or console for errors.');
+        document.getElementById('losChart').parentElement.innerHTML = 
+            '<p style="color: #d32f2f; padding: 20px;">Chart visualization unavailable. Please refresh the page.</p>';
+        return;
+    }
+
     const ctx = document.getElementById('losChart').getContext('2d');
 
     // Destroy existing chart if it exists

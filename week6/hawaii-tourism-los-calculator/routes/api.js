@@ -2,13 +2,57 @@ const express = require('express');
 const router = express.Router();
 const TourismData = require('../models/TourismData');
 
+// Cache valid categories and locations to reduce database queries
+// This prevents information disclosure through timing attacks and repeated validation queries
+let cachedCategories = [];
+let cachedLocations = [];
+let cacheExpiry = 0;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+// SECURITY FIX #12: Implement caching to prevent repeated database queries
+// This mitigates both DoS and information disclosure through query analysis
+async function updateCache() {
+  const now = Date.now();
+  if (now > cacheExpiry) {
+    cachedCategories = await TourismData.distinct('group');
+    cachedLocations = await TourismData.distinct('indicator');
+    cacheExpiry = now + CACHE_TTL;
+  }
+}
+
+// SECURITY FIX #4: Input validation helper - whitelist allowed categories and locations
+const validateInput = async (category, location) => {
+  const errors = [];
+  
+  // Update cache if expired
+  await updateCache();
+  
+  // Validate category - must exist in database
+  if (!category || typeof category !== 'string' || category.trim() === '') {
+    errors.push('Invalid category');
+  } else if (!cachedCategories.includes(category)) {
+    errors.push('Category not found');
+  }
+  
+  // Validate location if provided - must exist in database
+  if (location && (typeof location !== 'string' || location.trim() === '')) {
+    errors.push('Invalid location format');
+  } else if (location && location.trim() !== '' && !cachedLocations.includes(location)) {
+    errors.push('Location not found');
+  }
+  
+  return errors;
+};
+
 // Get all unique categories (groups)
 router.get('/categories', async (req, res) => {
   try {
     const categories = await TourismData.distinct('group');
     res.json({ success: true, data: categories.sort() });
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    // SECURITY FIX #6: Sanitize error messages
+    console.error('Categories error:', error);
+    res.status(500).json({ success: false, error: 'An error occurred while fetching categories' });
   }
 });
 
@@ -18,7 +62,9 @@ router.get('/locations', async (req, res) => {
     const locations = await TourismData.distinct('indicator');
     res.json({ success: true, data: locations.sort() });
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    // SECURITY FIX #6: Sanitize error messages
+    console.error('Locations error:', error);
+    res.status(500).json({ success: false, error: 'An error occurred while fetching locations' });
   }
 });
 
@@ -31,6 +77,15 @@ router.post('/calculate', async (req, res) => {
       return res.status(400).json({
         success: false,
         error: 'Category is required'
+      });
+    }
+
+    // SECURITY FIX #5: Validate user input against database to prevent NoSQL injection
+    const validationErrors = await validateInput(category, location);
+    if (validationErrors.length > 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid input parameters'
       });
     }
 
@@ -117,18 +172,14 @@ router.post('/calculate', async (req, res) => {
     });
 
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    // SECURITY FIX #6: Sanitize error messages - don't expose internal error details
+    console.error('Calculate error:', error);
+    res.status(500).json({ success: false, error: 'An error occurred while calculating results' });
   }
 });
 
-// Get all data (for admin/debugging)
-router.get('/data', async (req, res) => {
-  try {
-    const data = await TourismData.find().limit(100);
-    res.json({ success: true, count: data.length, data });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
+// SECURITY FIX #7: Remove unprotected /api/data endpoint that exposed raw database records
+// This endpoint was a security risk as it allowed anyone to dump all database records
+// If admin access needed in the future, implement proper authentication first
 
 module.exports = router;

@@ -2,6 +2,32 @@
 
 A web application to calculate and visualize average length of stay for Hawaii tourism data using MongoDB, Express.js, and vanilla JavaScript.
 
+## 🔒 Security Updates
+
+**Critical vulnerabilities fixed (February 21, 2026):**
+
+### Patch 1 - Initial Fixes:
+1. **Input Validation (NoSQL Injection Prevention)** - Added server-side validation to verify all user inputs (category, location) exist in the database before executing queries
+2. **Error Message Sanitization** - Changed all API error responses to generic messages instead of exposing internal error details that could reveal system/database structure
+3. **Unprotected Admin Endpoint Removed** - Deleted the `/api/data` endpoint that exposed raw database records without authentication
+4. **Security Headers Added** - Integrated Helmet.js to add critical HTTP security headers (Content-Security-Policy, X-Frame-Options, etc.)
+5. **CORS Restriction** - Changed from allowing any origin to restricting CORS to configured allowed origins (set via `ALLOWED_ORIGINS` environment variable)
+6. **Rate Limiting** - Added express-rate-limit to prevent DoS attacks (100 requests per 15 minutes per IP)
+
+### Patch 2 - High Priority Vulnerability Fixes:
+7. **HTTPS Enforcement** - Added HSTS (HTTP Strict-Transport-Security) headers and HTTP-to-HTTPS redirect in production mode to enforce encrypted connections
+8. **Multiple CORS Origins Support** - Updated CORS configuration to support multiple origins via comma-separated `ALLOWED_ORIGINS` environment variable (e.g., `https://domain1.com,https://domain2.com`)
+9. **JSON Body Size Limits** - Added 1MB limit to body parser middleware to prevent DoS attacks from uploading massive payloads that could exhaust server memory
+10. **Subresource Integrity (SRI)** - Added SRI hash to Chart.js CDN script to prevent tampering if the CDN is compromised
+11. **Query Validation Caching** - Implemented 5-minute cache for valid categories/locations to reduce database queries and prevent timing-based information disclosure attacks
+
+**New Dependencies:** `helmet` and `express-rate-limit`
+
+**Environment Variables:**
+- `ALLOWED_ORIGINS` - Comma-separated list of allowed origins (e.g., `https://myapp.com,https://app2.com`)
+- `NODE_ENV` - Set to `'production'` to enable HTTPS redirect
+- `MONGODB_URI` - MongoDB connection string (credentials should NOT appear in logs)
+
 ## Features
 
 - Interactive web form to select visitor categories and locations
