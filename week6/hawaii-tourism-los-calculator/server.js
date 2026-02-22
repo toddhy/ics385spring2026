@@ -1,3 +1,9 @@
+/*
+Name: Todd Yoshioka
+Class: ICS 385
+Notes: Lots of security fixes added by Claude Haiku 4.5. They are a little beyond my understanding.
+*/
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
