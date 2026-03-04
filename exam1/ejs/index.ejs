@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title><%= title %></title>
+</head>
+<body>
+  <h1><%= title %></h1>
+  <ul>
+    <% beaches.forEach(beach => { %>
+      <li><%= beach.name %> — <%= beach.island %></li>
+    <% }); %>
+  </ul>
+</body>
+</html>

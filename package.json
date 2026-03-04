@@ -4,6 +4,7 @@
     "famous-last-words": "^0.6.0",
     "inquirer": "^13.2.2",
     "popular-movie-quotes": "^1.2.4",
-    "qr-image": "^3.2.0"
+    "qr-image": "^3.2.0",
+    "zodiac-signs": "^1.5.0"
   }
 }

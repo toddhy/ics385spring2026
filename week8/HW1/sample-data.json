@@ -1,0 +1,344 @@
+{
+  "university": "University of Hawaii Maui College",
+  "semester": "Spring 2026",
+  "lastUpdated": "2026-03-04",
+  "departments": [
+    {
+      "code": "ICS",
+      "name": "Information and Computer Sciences",
+      "chair": "Dr. Jane Smith",
+      "courses": [
+        {
+          "courseCode": "ICS 385",
+          "title": "Web Development and Administration",
+          "credits": 3,
+          "description": "Detailed knowledge of web page authoring and server-side programming. Learn HTML, CSS, JavaScript, Node.js, APIs, and React frameworks.",
+          "prerequisites": ["ICS 320"],
+          "instructor": {
+            "name": "Dr. Debasis Bhattacharya",
+            "email": "debasisb@hawaii.edu",
+            "office": "Kaaike 114"
+          },
+          "schedule": {
+            "days": ["Tuesday"],
+            "time": "4:30 PM - 5:45 PM",
+            "location": "Online (Zoom)",
+            "capacity": 25,
+            "enrolled": 18
+          },
+          "isActive": true,
+          "topics": ["HTML", "CSS", "JavaScript", "Node.js", "APIs", "React"],
+          "assignments": [
+            {
+              "name": "Week 1 - Setup",
+              "points": 1,
+              "dueDate": "2026-01-19"
+            },
+            {
+              "name": "Week 2 - HTML/CSS",
+              "points": 3,
+              "dueDate": "2026-01-26"
+            },
+            {
+              "name": "Week 3 - JavaScript",
+              "points": 5,
+              "dueDate": "2026-02-02"
+            }
+          ]
+        },
+        {
+          "courseCode": "ICS 311",
+          "title": "Algorithms",
+          "credits": 3,
+          "description": "Study of algorithm design, analysis, and implementation. Topics include sorting, searching, graph algorithms, and dynamic programming.",
+          "prerequisites": ["ICS 241"],
+          "instructor": {
+            "name": "Dr. Michael Chen",
+            "email": "mchen@hawaii.edu",
+            "office": "Kaaike 205"
+          },
+          "schedule": {
+            "days": ["Monday", "Wednesday"],
+            "time": "1:00 PM - 2:30 PM",
+            "location": "Kaaike 213",
+            "capacity": 30,
+            "enrolled": 28
+          },
+          "isActive": true,
+          "topics": ["Algorithms", "Sorting", "Searching", "Graphs", "Dynamic Programming"],
+          "assignments": [
+            {
+              "name": "Problem Set 1",
+              "points": 10,
+              "dueDate": "2026-01-25"
+            },
+            {
+              "name": "Midterm Project",
+              "points": 25,
+              "dueDate": "2026-02-28"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "MATH",
+      "name": "Mathematics",
+      "chair": "Dr. Robert Johnson",
+      "courses": [
+        {
+          "courseCode": "MATH 140",
+          "title": "Calculus I",
+          "credits": 4,
+          "description": "Limits, derivatives, and applications of derivatives. Introduction to integral calculus and fundamental theorem of calculus.",
+          "prerequisites": ["MATH 135"],
+          "instructor": {
+            "name": "Dr. Sarah Wilson",
+            "email": "sarahw@hawaii.edu",
+            "office": "Academic Center 201"
+          },
+          "schedule": {
+            "days": ["Monday", "Wednesday", "Friday"],
+            "time": "10:00 AM - 10:50 AM",
+            "location": "AC 105",
+            "capacity": 30,
+            "enrolled": 25
+          },
+          "isActive": true,
+          "topics": ["Limits", "Derivatives", "Integration", "Applications", "Calculus"],
+          "assignments": [
+            {
+              "name": "Homework 1",
+              "points": 10,
+              "dueDate": "2026-01-20"
+            },
+            {
+              "name": "Quiz 1",
+              "points": 15,
+              "dueDate": "2026-02-03"
+            },
+            {
+              "name": "Midterm Exam",
+              "points": 100,
+              "dueDate": "2026-03-15"
+            }
+          ]
+        },
+        {
+          "courseCode": "MATH 241",
+          "title": "Discrete Mathematics",
+          "credits": 3,
+          "description": "Logic, set theory, combinatorics, and graph theory. Foundation for computer science and discrete structures.",
+          "prerequisites": [],
+          "instructor": {
+            "name": "Dr. Patricia Lee",
+            "email": "plee@hawaii.edu",
+            "office": "AC 312"
+          },
+          "schedule": {
+            "days": ["Tuesday", "Thursday"],
+            "time": "2:00 PM - 3:30 PM",
+            "location": "AC 215",
+            "capacity": 35,
+            "enrolled": 32
+          },
+          "isActive": true,
+          "topics": ["Logic", "Set Theory", "Combinatorics", "Graph Theory", "Proofs"],
+          "assignments": [
+            {
+              "name": "Logic Problems",
+              "points": 10,
+              "dueDate": "2026-01-30"
+            },
+            {
+              "name": "Combinatorics Project",
+              "points": 20,
+              "dueDate": "2026-02-20"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "CHEM",
+      "name": "Chemistry",
+      "chair": "Dr. Jennifer Davis",
+      "courses": [
+        {
+          "courseCode": "CHEM 151",
+          "title": "General Chemistry I",
+          "credits": 4,
+          "description": "Atomic structure, bonding, stoichiometry, and gas laws. Laboratory component included.",
+          "prerequisites": [],
+          "instructor": {
+            "name": "Dr. Jennifer Davis",
+            "email": "jdavis@hawaii.edu",
+            "office": "Science Building 102"
+          },
+          "schedule": {
+            "days": ["Monday", "Wednesday", "Friday"],
+            "time": "11:00 AM - 11:50 AM",
+            "location": "SB 101",
+            "capacity": 25,
+            "enrolled": 22
+          },
+          "isActive": true,
+          "topics": ["Atomic Structure", "Bonding", "Stoichiometry", "Gas Laws", "Laboratory"],
+          "assignments": [
+            {
+              "name": "Lab Report 1",
+              "points": 15,
+              "dueDate": "2026-01-28"
+            },
+            {
+              "name": "Chapter Quiz",
+              "points": 20,
+              "dueDate": "2026-02-10"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "PHYS",
+      "name": "Physics",
+      "chair": "Dr. Mark Thompson",
+      "courses": [
+        {
+          "courseCode": "PHYS 151",
+          "title": "Physics I: Mechanics",
+          "credits": 4,
+          "description": "Introduction to classical mechanics covering kinematics, dynamics, energy, momentum, and rotational motion. Laboratory component with hands-on experiments.",
+          "prerequisites": ["MATH 135"],
+          "instructor": {
+            "name": "Dr. Mark Thompson",
+            "email": "mthompson@hawaii.edu",
+            "office": "Science Building 205"
+          },
+          "schedule": {
+            "days": ["Monday", "Wednesday"],
+            "time": "1:00 PM - 2:30 PM",
+            "location": "SB 110",
+            "capacity": 20,
+            "enrolled": 17
+          },
+          "isActive": true,
+          "topics": ["Kinematics", "Dynamics", "Energy", "Momentum", "Rotation", "Laboratory"],
+          "assignments": [
+            {
+              "name": "Problem Set 1",
+              "points": 10,
+              "dueDate": "2026-01-29"
+            },
+            {
+              "name": "Lab Report - Measurement",
+              "points": 20,
+              "dueDate": "2026-02-12"
+            },
+            {
+              "name": "Midterm Exam",
+              "points": 100,
+              "dueDate": "2026-03-10"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "BUSN",
+      "name": "Business Administration",
+      "chair": "Dr. Amanda Rivera",
+      "courses": [
+        {
+          "courseCode": "BUSN 101",
+          "title": "Business Fundamentals",
+          "credits": 3,
+          "description": "Introduction to business concepts, organizational structure, management principles, and entrepreneurship. Covers marketing, finance, and operations fundamentals.",
+          "prerequisites": [],
+          "instructor": {
+            "name": "Dr. Amanda Rivera",
+            "email": "arivera@hawaii.edu",
+            "office": "Business Center 301"
+          },
+          "schedule": {
+            "days": ["Tuesday", "Thursday"],
+            "time": "11:00 AM - 12:30 PM",
+            "location": "BC 150",
+            "capacity": 40,
+            "enrolled": 35
+          },
+          "isActive": true,
+          "topics": ["Management", "Marketing", "Finance", "Operations", "Entrepreneurship"],
+          "assignments": [
+            {
+              "name": "Business Plan Outline",
+              "points": 15,
+              "dueDate": "2026-02-05"
+            },
+            {
+              "name": "Case Study Analysis",
+              "points": 25,
+              "dueDate": "2026-02-28"
+            },
+            {
+              "name": "Final Project",
+              "points": 40,
+              "dueDate": "2026-03-20"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "ENG",
+      "name": "English and Literature",
+      "chair": "Dr. Elizabeth Morgan",
+      "courses": [
+        {
+          "courseCode": "ENG 110",
+          "title": "English Composition I",
+          "credits": 3,
+          "description": "Fundamentals of academic writing including thesis development, organization, research, and revision. Focus on clear and effective communication.",
+          "prerequisites": [],
+          "instructor": {
+            "name": "Dr. Elizabeth Morgan",
+            "email": "emorgan@hawaii.edu",
+            "office": "Arts Building 205"
+          },
+          "schedule": {
+            "days": ["Monday", "Wednesday", "Friday"],
+            "time": "9:00 AM - 9:50 AM",
+            "location": "AB 103",
+            "capacity": 25,
+            "enrolled": 24
+          },
+          "isActive": true,
+          "topics": ["Writing", "Grammar", "Research", "Critical Thinking", "Composition"],
+          "assignments": [
+            {
+              "name": "Essay 1 - Personal Narrative",
+              "points": 20,
+              "dueDate": "2026-02-02"
+            },
+            {
+              "name": "Essay 2 - Argumentative",
+              "points": 30,
+              "dueDate": "2026-02-25"
+            },
+            {
+              "name": "Research Paper",
+              "points": 50,
+              "dueDate": "2026-03-25"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "totalCourses": 8,
+    "totalDepartments": 6,
+    "totalCreditsOffered": 27,
+    "academicYear": "2025-2026"
+  }
+}
