@@ -269,7 +269,7 @@ main {
 }
 
 .modal {
-  display: none;
+  display: flex;
   position: fixed;
   z-index: 1000;
   left: 0;
@@ -278,6 +278,8 @@ main {
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   overflow-y: auto;
+  justify-content: center;
+  align-items: flex-start;
 }
 
 .modal.hidden {

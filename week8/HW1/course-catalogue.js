@@ -595,7 +595,7 @@ class CourseCatalogManager {
    * @param {string} courseCode - The course code to display
    */
   showCourseDetails(courseCode) {
-    const course = this.filteredCourses.find(c => c.courseCode === courseCode);
+    const course = this.getAllCourses().find(c => c.courseCode === courseCode);
     if (!course) {
       this.handleError('Course not found', new Error(`Course ${courseCode} not found`));
       return;
