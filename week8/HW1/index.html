@@ -1,77 +1,82 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>UH Maui College - Course Catalog</title>
-<link rel="stylesheet" href="styles.css">
-</head>
-<body>
-<header>
-<div class="header-content">
-<h1>UH Maui College Course Catalog</h1>
-<p>Spring 2026 - Interactive Course Browser</p>
-</div>
-</header>
-<main>
-<section class="controls">
-<div class="search-section">
-<input type="text" id="searchInput" placeholder="Search courses,
-instructors, topics...">
-<button id="clearSearchBtn">Clear</button>
-</div>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UH Maui College - Course Catalog</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header>
+      <div class="header-content">
+        <h1>UH Maui College Course Catalog</h1>
+        <p>Spring 2026 - Interactive Course Browser</p>
+      </div>
+    </header>
+    <main>
+      <section class="controls">
+        <div class="search-section">
+          <input type="text" id="searchInput" placeholder="Search courses, instructors, topics...">
+          <button id="clearSearchBtn">Clear</button>
+        </div>
 
-<div class="filter-section">
-<select id="departmentFilter">
-<option value="all">All Departments</option>
-<option value="ICS">Computer Science</option>
-<option value="MATH">Mathematics</option>
-</select>
-<select id="creditsFilter">
-<option value="all">All Credit Hours</option>
-<option value="1">1 Credit</option>
-<option value="3">3 Credits</option>
-<option value="4">4 Credits</option>
-</select>
-</div>
-<div class="action-section">
-<button id="loadSampleBtn">Load Sample Data</button>
-<button id="addCourseBtn">Add New Course</button>
-<button id="exportBtn">Export JSON</button>
-<input type="file" id="fileInput" accept=".json" style="display: none;">
-<button type="button" onclick="document.getElementById('fileInput').click()">Load JSON File</button>
-</div>
-</section>
-<section id="statisticsSection" class="statistics">
-<div class="stat-item">
-<span class="stat-number" id="totalCourses">0</span>
-<span class="stat-label">Total Courses</span>
-</div>
-<div class="stat-item">
-<span class="stat-number" id="totalDepartments">0</span>
-<span class="stat-label">Departments</span>
-</div>
-<div class="stat-item">
-<span class="stat-number" id="averageEnrollment">0%</span>
-<span class="stat-label">Avg Enrollment</span>
-</div>
-</section>
-<section id="coursesContainer" class="courses-grid">
-<div class="loading">Loading course catalog...</div>
-</section>
-</main>
-<!-- Course Details Modal -->
-<div id="courseModal" class="modal hidden">
-<div class="modal-content">
-<span class="close-btn">×</span>
-<div id="modalBody">
-<!-- Course details will be dynamically inserted -->
-</div>
-</div>
-</div>
-<footer>
-<p>ICS 385 Week 8 - JSON Fundamentals Assignment</p>
-</footer>
-<script src="course-catalogue.js"></script>
-</body>
+        <div class="filter-section">
+          <select id="departmentFilter">
+            <option value="all">All Departments</option>
+            <option value="ICS">Computer Science</option>
+            <option value="MATH">Mathematics</option>
+          </select>
+          <select id="creditsFilter">
+            <option value="all">All Credit Hours</option>
+            <option value="1">1 Credit</option>
+            <option value="3">3 Credits</option>
+            <option value="4">4 Credits</option>
+          </select>
+        </div>
+
+        <div class="action-section">
+          <button id="loadSampleBtn">Load Sample Data</button>
+          <button id="addCourseBtn">Add New Course</button>
+          <button id="exportBtn">Export JSON</button>
+          <input type="file" id="fileInput" accept=".json" style="display: none;">
+          <button type="button" onclick="document.getElementById('fileInput').click()">Load JSON File</button>
+        </div>
+      </section>
+
+      <section id="statisticsSection" class="statistics">
+        <div class="stat-item">
+          <span class="stat-number" id="totalCourses">0</span>
+          <span class="stat-label">Total Courses</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number" id="totalDepartments">0</span>
+          <span class="stat-label">Departments</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number" id="averageEnrollment">0%</span>
+          <span class="stat-label">Avg Enrollment</span>
+        </div>
+      </section>
+
+      <section id="coursesContainer" class="courses-grid">
+        <div class="loading">Loading course catalog...</div>
+      </section>
+    </main>
+
+    <!-- Course Details Modal -->
+    <div id="courseModal" class="modal hidden">
+      <div class="modal-content">
+        <span class="close-btn">×</span>
+        <div id="modalBody">
+          <!-- Course details will be dynamically inserted -->
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>ICS 385 Week 8 - JSON Fundamentals Assignment</p>
+    </footer>
+
+    <script src="course-catalogue.js"></script>
+  </body>
 </html>
