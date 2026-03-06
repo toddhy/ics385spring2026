@@ -343,7 +343,6 @@ class CourseCatalogManager {
         departmentCount: data.departments.length,
         timestamp: new Date().toISOString()
       });
-      this.showSuccessMessage(`Course catalog loaded with ${this.filteredCourses.length} courses`);
     } catch (error) {
       this.handleJSONError('Course Data Load', error);
     }
