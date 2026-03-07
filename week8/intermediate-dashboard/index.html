@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UH Maui College - Campus Dashboard</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+/* Ensure visibility */
+body, .dashboard-header, .dashboard-grid {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+</style>
+</head>
+<body>
+<script>
+console.log('Page loading...');
+window.addEventListener('error', function(e) {
+  console.error('JavaScript Error:', e.error);
+});
+</script>
+
+<noscript>
+<div style="background-color: #fff5f5; color: #c53030; padding: 20px; text-align: center; border: 1px solid #fc8181;">
+<h2>JavaScript is disabled!</h2>
+<p>This application requires JavaScript to be enabled. Please enable JavaScript in your browser settings.</p>
+</div>
+</noscript>
+
+<!-- Loading indicator -->
+<div id="loading-indicator" style="background-color: #667eea; color: white; padding: 10px; text-align: center; display: none;">
+⚠️ Dashboard is initializing. Please wait...
+</div>
+<header class="dashboard-header">
+<div class="header-content">
+<h1>UH Maui College Campus Dashboard</h1>
+<div class="header-controls">
+<button id="settingsBtn" class="header-btn">Settings</button>
+<button id="refreshAllBtn" class="header-btn">Refresh All</button>
+</div>
+</div>
+</header>
+<main id="dashboard-container" class="dashboard-grid">
+<!-- Quick Stats Overview -->
+<section class="stats-overview">
+<div class="stat-card">
+<span class="stat-number" id="total-courses">-</span>
+<span class="stat-label">Courses</span>
+</div>
+<div class="stat-card">
+<span class="stat-number" id="total-students">-</span>
+<span class="stat-label">Students</span>
+</div>
+<div class="stat-card">
+<span class="stat-number" id="avg-capacity">-</span>
+<span class="stat-label">Capacity</span>
+</div>
+<div class="stat-card">
+<span class="stat-number" id="api-status">-</span>
+<span class="stat-label">API Status</span>
+</div>
+</section>
+<!-- Weather Widget -->
+<section id="weather-widget" class="dashboard-widget weather-widget">
+<div class="loading">Loading weather...</div>
+</section>
+<!-- Course Management Widget -->
+<section class="dashboard-widget course-widget">
+<div class="widget-header">
+<h3>Course Management</h3>
+<div class="widget-controls">
+<input type="text" id="courseSearch" placeholder="Search courses...">
+<select id="departmentFilter">
+<option value="all">All Departments</option>
+</select>
+</div>
+</div>
+<div id="coursesContainer" class="courses-grid">
+<div class="loading">Loading courses...</div>
+</div>
+</section>
+<!-- Humor Widget -->
+<section id="humor-widget" class="dashboard-widget humor-widget">
+<div class="loading">Loading humor...</div>
+</section>
+<!-- Quick Actions -->
+<section class="dashboard-widget actions-widget">
+<div class="widget-header">
+<h3>Quick Actions</h3>
+</div>
+<div class="actions-grid">
+<button class="action-btn" onclick="if(window.dashboard)dashboard.addNewCourse(); else alert('Dashboard not ready');">Add Course</button>
+<button class="action-btn" onclick="if(window.dashboard)dashboard.exportData(); else alert('Dashboard not ready');">Export Data</button>
+<button class="action-btn" onclick="if(window.dashboard)dashboard.refreshWeather(); else alert('Dashboard not ready');">Update Weather</button>
+<button class="action-btn" onclick="if(window.dashboard)dashboard.refreshHumor(); else alert('Dashboard not ready');">New Jokes</button>
+</div>
+</section>
+</main>
+<!-- API Key Setup Modal -->
+<div id="apiKeyModal" class="modal">
+<div class="modal-content">
+<h2>API Configuration Required</h2>
+<p>Please configure your API keys to enable all dashboard features:</p>
+<div class="api-key-setup">
+<label for="openWeatherKey">OpenWeatherMap API Key:</label>
+<input type="password" id="openWeatherKey" placeholder="Enter your OpenWeather
+API key">
+<label for="rapidApiKey">RapidAPI Key:</label>
+<input type="password" id="rapidApiKey" placeholder="Enter your RapidAPI key">
+<div class="modal-actions">
+<button onclick="if(window.dashboard)dashboard.saveApiKeys(); else alert('Dashboard not initialized');" class="save-btn">Save Keys</button>
+<button onclick="document.getElementById('apiKeyModal').style.display='none'" class="skip-btn">Skip</button>
+</div>
+</div>
+</div>
+</div>
+<footer>
+<p>ICS 385 Week 8 - Intermediate Assignment | Multi-API Dashboard</p>
+</footer>
+<!-- JavaScript Files -->
+<script src="config.js"></script>
+<script>
+console.log('After config.js - appConfig type:', typeof appConfig);
+if (typeof appConfig === 'undefined') {
+  console.error('CRITICAL: appConfig is undefined after loading config.js');
+  console.log('window.appConfig:', typeof window.appConfig);
+} else {
+  console.log('✓ appConfig loaded successfully');
+  console.log('  - apis:', typeof appConfig.apis);
+  console.log('  - app:', typeof appConfig.app);
+  console.log('  - ui:', typeof appConfig.ui);
+}
+</script>
+
+<script src="api-client.js"></script>
+<script>
+if (typeof UnifiedApiClient === 'undefined') {
+  console.error('CRITICAL: UnifiedApiClient is undefined after loading api-client.js');
+  // Try to find what's in Window
+  const allKeys = Object.keys(window).filter(k => k.length < 30);
+  console.log('Available window objects:', allKeys.slice(0, 20).join(', '));
+} else {
+  console.log('✓ api-client.js loaded, UnifiedApiClient available');
+}
+</script>
+
+<script src="course-catalog.js"></script>
+<script>
+if (typeof CourseCatalog === 'undefined') {
+  console.error('CRITICAL: CourseCatalog is undefined after loading course-catalog.js');
+} else {
+  console.log('✓ course-catalog.js loaded');
+}
+</script>
+
+<script src="dashboard.js"></script>
+<script>
+if (typeof CampusDashboard === 'undefined') {
+  console.error('CRITICAL: CampusDashboard is undefined after loading dashboard.js');
+} else {
+  console.log('✓ dashboard.js loaded, CampusDashboard available');
+}
+</script>
+
+<script>
+// Ensure DOM is ready before initializing
+console.log('Waiting for all scripts to load...');
+var scriptLoadCount = 0;
+var requiredScripts = ['config.js', 'api-client.js', 'course-catalog.js', 'dashboard.js'];
+
+function checkAndInitialize() {
+  console.log('checkAndInitialize called');
+  console.log('  appConfig:', typeof appConfig);
+  console.log('  UnifiedApiClient:', typeof UnifiedApiClient);
+  console.log('  CourseCatalog:', typeof CourseCatalog);
+  console.log('  CampusDashboard:', typeof CampusDashboard);
+  
+  if (typeof appConfig !== 'undefined' && 
+      typeof UnifiedApiClient !== 'undefined' && 
+      typeof CourseCatalog !== 'undefined' &&
+      typeof CampusDashboard !== 'undefined') {
+    console.log('All dependencies ready, initializing dashboard');
+    if (!window.dashboard) {
+      window.dashboard = new CampusDashboard();
+    }
+  } else {
+    console.warn('Waiting for dependencies...');
+    setTimeout(checkAndInitialize, 100);
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM ready, checking scripts');
+    setTimeout(checkAndInitialize, 200);
+  });
+} else {
+  console.log('DOM already ready');
+  setTimeout(checkAndInitialize, 200);
+}
+</script>
+</body>
+</html>

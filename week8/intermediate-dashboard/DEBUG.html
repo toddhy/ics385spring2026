@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard Debug Console</title>
+  <style>
+    body { font-family: monospace; background: #1e1e1e; color: #d4d4d4; padding: 20px; }
+    h1 { color: #569cd6; }
+    h2 { color: #4ec9b0; margin-top: 20px; }
+    #console { 
+      background: #252526; 
+      border: 1px solid #3e3e42; 
+      padding: 10px; 
+      margin: 10px 0;
+      height: 300px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+      font-size: 12px;
+    }
+    .log { color: #d4d4d4; }
+    .info { color: #569cd6; }
+    .warn { color: #ce9178; }
+    .error { color: #f48771; }
+    .button-group { margin: 10px 0; }
+    button { 
+      padding: 10px 20px; 
+      margin: 5px; 
+      background: #007acc; 
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 3px;
+      font-family: monospace;
+    }
+    button:hover { background: #0098ff; }
+    button:disabled { background: #555; opacity: 0.5; cursor: not-allowed; }
+    .status-box { 
+      background: #252526; 
+      border: 1px solid #3e3e42; 
+      padding: 10px; 
+      margin: 10px 0;
+      border-radius: 3px;
+    }
+    .status-item { margin: 5px 0; }
+  </style>
+</head>
+<body>
+  <h1>🔧 Dashboard Debug Console</h1>
+  
+  <div class="status-box">
+    <h2>System Status</h2>
+    <div class="status-item">API Keys in localStorage:</div>
+    <div id="apiKeysStatus" style="margin-left: 20px;"></div>
+    <hr>
+    <div class="status-item">Dashboard Object Status:</div>
+    <div id="dashboardStatus" style="margin-left: 20px;">Checking...</div>
+  </div>
+
+  <div class="button-group">
+    <h2>Control Panel</h2>
+    <button onclick="checkApiKeys()">Refresh Status</button>
+    <button onclick="testWeatherApi()">Test Weather API</button>
+    <button onclick="testJokesApi()">Test Jokes API</button>
+    <button onclick="testRefreshAll()">Test: Refresh All</button>
+    <button onclick="clearConsole()">Clear Console</button>
+  </div>
+
+  <h2>Console Output:</h2>
+  <div id="console"></div>
+
+  <script>
+    // Hijack console methods to display in the page
+    const consoleDiv = document.getElementById('console');
+    
+    const originalLog = console.log;
+    const originalWarn = console.warn;
+    const originalError = console.error;
+    const originalInfo = console.info;
+    
+    function formatValue(arg) {
+      if (typeof arg === 'object') {
+        try {
+          return JSON.stringify(arg, null, 2);
+        } catch (e) {
+          return String(arg);
+        }
+      }
+      return String(arg);
+    }
+    
+    console.log = function(...args) {
+      originalLog(...args);
+      const msg = args.map(formatValue).join(' ');
+      consoleDiv.innerHTML += '<div class="log">LOG: ' + msg.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>';
+      consoleDiv.scrollTop = consoleDiv.scrollHeight;
+    };
+    
+    console.info = function(...args) {
+      originalInfo(...args);
+      const msg = args.map(formatValue).join(' ');
+      consoleDiv.innerHTML += '<div class="info">INFO: ' + msg.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>';
+      consoleDiv.scrollTop = consoleDiv.scrollHeight;
+    };
+    
+    console.warn = function(...args) {
+      originalWarn(...args);
+      const msg = args.map(formatValue).join(' ');
+      consoleDiv.innerHTML += '<div class="warn">WARN: ' + msg.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>';
+      consoleDiv.scrollTop = consoleDiv.scrollHeight;
+    };
+    
+    console.error = function(...args) {
+      originalError(...args);
+      const msg = args.map(formatValue).join(' ');
+      consoleDiv.innerHTML += '<div class="error">ERROR: ' + msg.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>';
+      consoleDiv.scrollTop = consoleDiv.scrollHeight;
+    };
+    
+    function clearConsole() {
+      consoleDiv.innerHTML = '';
+    }
+    
+    function checkApiKeys() {
+      const keys = ['openweather_api_key', 'OPENWEATHER_API_KEY', 'rapidapi_api_key', 'RAPIDAPI_KEY'];
+      const statusDiv = document.getElementById('apiKeysStatus');
+      let html = '';
+      keys.forEach(key => {
+        const value = localStorage.getItem(key);
+        const status = value ? '✓ Found' : '✗ Missing';
+        const preview = value ? value.substring(0, 10) + '...' : '(empty)';
+        html += `<div>${key}: ${status} ${preview}</div>`;
+      });
+      statusDiv.innerHTML = html;
+    }
+    
+    async function testWeatherApi() {
+      console.log('\n=== Testing Weather API ===');
+      if (!window.dashboard || !window.dashboard.apiClient) {
+        console.error('Dashboard or API Client not available yet');
+        return;
+      }
+      try {
+        const result = await window.dashboard.apiClient.getWeather('Kahului');
+        console.log('Weather API Response:', result);
+      } catch (error) {
+        console.error('Weather API Error:', error);
+      }
+    }
+    
+    async function testJokesApi() {
+      console.log('\n=== Testing Jokes API ===');
+      if (!window.dashboard || !window.dashboard.apiClient) {
+        console.error('Dashboard or API Client not available yet');
+        return;
+      }
+      try {
+        const result = await window.dashboard.apiClient.getAllJokes();
+        console.log('Jokes API Response:', result);
+      } catch (error) {
+        console.error('Jokes API Error:', error);
+      }
+    }
+    
+    function testRefreshAll() {
+      console.log('\n=== Testing Refresh All ===');
+      if (window.dashboard && window.dashboard.refreshAll) {
+        console.log('Calling dashboard.refreshAll()...');
+        window.dashboard.refreshAll().then(() => {
+          console.log('refreshAll completed');
+        }).catch(e => {
+          console.error('refreshAll failed:', e);
+        });
+      } else {
+        console.error('dashboard.refreshAll not available');
+      }
+    }
+    
+    // Initial page load logging
+    console.log('🟢 Debug page loaded');
+    console.log('Waiting for dashboard to initialize...');
+    checkApiKeys();
+    
+  </script>
+  
+  <!-- Load dashboard -->
+  <script src="config.js"></script>
+  <script src="api-client.js"></script>
+  <script src="course-catalog.js"></script>
+  <script src="dashboard.js"></script>
+  
+  <script>
+    setTimeout(() => {
+      console.log('\n=== Dashboard Initialization Status ===');
+      if (window.dashboard) {
+        console.log('✓ window.dashboard exists');
+        document.getElementById('dashboardStatus').innerHTML = '<span style="color: #4ec9b0;">✓ Dashboard Initialized</span>';
+        const methods = ['refreshAll', 'refreshWeather', 'refreshHumor', 'loadWeatherData', 'loadHumorData'];
+        methods.forEach(m => {
+          const has = typeof window.dashboard[m] === 'function' ? '✓' : '✗';
+          console.log(has + ' dashboard.' + m);
+        });
+      } else {
+        console.error('✗ window.dashboard is NOT available');
+        document.getElementById('dashboardStatus').innerHTML = '<span style="color: #f48771;">✗ Dashboard Not Initialized</span>';
+      }
+    }, 2000);
+  </script>
+</body>
+</html>
