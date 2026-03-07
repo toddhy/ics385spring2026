@@ -1,6 +1,6 @@
 /**
- * Course Catalog - Manages course data, filtering, and display
- * Fully integrated with the dashboard system
+ * Course Catalog - Manages course data with full CRUD operations
+ * Integrated with the dashboard system
  */
 class CourseCatalog {
   constructor() {
@@ -8,17 +8,15 @@ class CourseCatalog {
     this.filteredCourses = [...this.courses];
     this.currentView = 'all';
     this.searchCache = new Map();
+    this.nextId = Math.max(...this.courses.map(c => c.id), 0) + 1;
   }
 
   loadCourses() {
     // Load courses from courses.json
     try {
-      // Get the base path for the JSON file (same directory as this script)
       const jsonPath = './courses.json';
-      
-      // Fetch synchronously using XMLHttpRequest for compatibility
       const xhr = new XMLHttpRequest();
-      xhr.open('GET', jsonPath, false); // false = synchronous
+      xhr.open('GET', jsonPath, false);
       xhr.send();
       
       if (xhr.status === 200) {
@@ -26,7 +24,6 @@ class CourseCatalog {
         const flattenedCourses = [];
         let courseId = 1;
         
-        // Flatten the nested department/course structure
         if (data.departments && Array.isArray(data.departments)) {
           data.departments.forEach(dept => {
             if (dept.courses && Array.isArray(dept.courses)) {
@@ -62,7 +59,6 @@ class CourseCatalog {
   }
 
   getDefaultCourses() {
-    // Fallback default courses if JSON loading fails
     return [
       {
         id: 1,
@@ -147,9 +143,13 @@ class CourseCatalog {
     ];
   }
 
-  // Core methods for dashboard
+  // ============ READ OPERATIONS ============
   getAllCourses() {
     return this.courses;
+  }
+
+  getCourseById(id) {
+    return this.courses.find(c => c.id === id);
   }
 
   getCoursesByDepartment(dept) {
@@ -179,6 +179,107 @@ class CourseCatalog {
     return results;
   }
 
+  // ============ CREATE OPERATIONS ============
+  addCourse(course) {
+    // Validate course data
+    const validation = this.validateCourse(course);
+    if (!validation.isValid) {
+      console.error('Course validation failed:', validation.errors);
+      return { success: false, errors: validation.errors };
+    }
+
+    const newCourse = {
+      id: this.nextId++,
+      code: course.code,
+      name: course.name,
+      department: course.department,
+      instructor: course.instructor,
+      enrollment: course.enrollment || 0,
+      capacity: course.capacity || 30,
+      credits: course.credits || 3,
+      description: course.description || '',
+      schedule: course.schedule || {},
+      topics: course.topics || [],
+      prerequisites: course.prerequisites || [],
+      assignments: course.assignments || []
+    };
+
+    this.courses.push(newCourse);
+    this.searchCache.clear();
+    console.log('Course added:', newCourse);
+    return { success: true, course: newCourse };
+  }
+
+  // ============ UPDATE OPERATIONS ============
+  updateCourse(id, updatedData) {
+    const course = this.courses.find(c => c.id === id);
+    if (!course) {
+      return { success: false, error: 'Course not found' };
+    }
+
+    // Validate updated data
+    const dataToValidate = { ...course, ...updatedData };
+    const validation = this.validateCourse(dataToValidate);
+    if (!validation.isValid) {
+      return { success: false, errors: validation.errors };
+    }
+
+    Object.assign(course, updatedData);
+    this.searchCache.clear();
+    console.log('Course updated:', course);
+    return { success: true, course };
+  }
+
+  // ============ DELETE OPERATIONS ============
+  deleteCourse(id) {
+    const index = this.courses.findIndex(c => c.id === id);
+    if (index > -1) {
+      const removed = this.courses.splice(index, 1)[0];
+      this.searchCache.clear();
+      console.log('Course deleted:', removed);
+      return { success: true, course: removed };
+    }
+    return { success: false, error: 'Course not found' };
+  }
+
+  // ============ VALIDATION ============
+  validateCourse(course) {
+    const errors = [];
+
+    // Required string fields
+    if (!course.code || typeof course.code !== 'string' || course.code.trim() === '') {
+      errors.push('Course code is required');
+    }
+    if (!course.name || typeof course.name !== 'string' || course.name.trim() === '') {
+      errors.push('Course name is required');
+    }
+    if (!course.department || typeof course.department !== 'string') {
+      errors.push('Department is required');
+    }
+
+    // Credits validation
+    if (typeof course.credits !== 'number' || course.credits < 1 || course.credits > 6) {
+      errors.push('Credits must be between 1 and 6');
+    }
+
+    // Enrollment validation
+    if (typeof course.enrollment !== 'number' || course.enrollment < 0) {
+      errors.push('Enrollment must be a non-negative number');
+    }
+    if (typeof course.capacity !== 'number' || course.capacity < 1) {
+      errors.push('Capacity must be a positive number');
+    }
+    if (course.enrollment > course.capacity) {
+      errors.push('Enrollment cannot exceed capacity');
+    }
+
+    return {
+      isValid: errors.length === 0,
+      errors: errors
+    };
+  }
+
+  // ============ FILTER & STAT OPERATIONS ============
   filterByDepartment(dept) {
     this.currentView = 'department:' + dept;
     this.filteredCourses = this.getCoursesByDepartment(dept);
@@ -214,34 +315,6 @@ class CourseCatalog {
     return this.getTotalCapacity() - this.getTotalEnrollment();
   }
 
-  addCourse(course) {
-    const newId = Math.max(...this.courses.map(c => c.id), 0) + 1;
-    course.id = newId;
-    this.courses.push(course);
-    this.searchCache.clear();
-    return course;
-  }
-
-  removeCourse(id) {
-    const index = this.courses.findIndex(c => c.id === id);
-    if (index > -1) {
-      this.courses.splice(index, 1);
-      this.searchCache.clear();
-      return true;
-    }
-    return false;
-  }
-
-  updateCourse(id, updatedData) {
-    const course = this.courses.find(c => c.id === id);
-    if (course) {
-      Object.assign(course, updatedData);
-      this.searchCache.clear();
-      return course;
-    }
-    return null;
-  }
-
   getDepartments() {
     const depts = new Set(this.courses.map(c => c.department));
     return Array.from(depts).sort();
@@ -252,7 +325,7 @@ class CourseCatalog {
     return Array.from(credits).sort((a, b) => a - b);
   }
 
-  // Export and import methods
+  // ============ EXPORT & IMPORT ============
   exportToJSON() {
     return JSON.stringify(this.courses, null, 2);
   }
@@ -263,17 +336,18 @@ class CourseCatalog {
       if (Array.isArray(courses)) {
         this.courses = courses;
         this.filteredCourses = [...this.courses];
+        this.nextId = Math.max(...courses.map(c => c.id), 0) + 1;
         this.searchCache.clear();
-        return true;
+        return { success: true };
       }
-      return false;
+      return { success: false, error: 'Invalid JSON format' };
     } catch (error) {
       console.error('Failed to import courses:', error);
-      return false;
+      return { success: false, error: error.message };
     }
   }
 
-  // Statistics methods
+  // ============ STATISTICS ============
   getStatistics() {
     return {
       totalCourses: this.courses.length,

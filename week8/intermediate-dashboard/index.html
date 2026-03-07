@@ -91,7 +91,7 @@ window.addEventListener('error', function(e) {
 <h3>Quick Actions</h3>
 </div>
 <div class="actions-grid">
-<button class="action-btn" onclick="if(window.dashboard)dashboard.addNewCourse(); else alert('Dashboard not ready');">Add Course</button>
+<button class="action-btn" onclick="showAddCourseModal()">Add Course</button>
 <button class="action-btn" onclick="if(window.dashboard)dashboard.exportData(); else alert('Dashboard not ready');">Export Data</button>
 <button class="action-btn" onclick="if(window.dashboard)dashboard.refreshWeather(); else alert('Dashboard not ready');">Update Weather</button>
 <button class="action-btn" onclick="if(window.dashboard)dashboard.refreshHumor(); else alert('Dashboard not ready');">New Jokes</button>

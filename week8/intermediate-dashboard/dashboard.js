@@ -114,8 +114,13 @@ container.innerHTML = courses.map(course => `
 </div>
 <p class="course-title">${course.name}</p>
 <p class="course-instructor">Instructor: ${course.instructor}</p>
+<p class="course-credits">Credits: ${course.credits}</p>
 <div class="enrollment-bar">
 <div class="enrollment-fill" style="width: ${(course.enrollment/course.capacity)*100}%"></div>
+</div>
+<div class="course-actions" style="display:flex;gap:8px;margin-top:12px;">
+<button class="btn-edit" onclick="showEditCourseModal(${course.id})" style="flex:1;padding:8px;background-color:#2196F3;color:white;border:none;border-radius:4px;cursor:pointer;font-size:12px;">Edit</button>
+<button class="btn-delete" onclick="handleDeleteCourse(${course.id})" style="flex:1;padding:8px;background-color:#f44336;color:white;border:none;border-radius:4px;cursor:pointer;font-size:12px;">Delete</button>
 </div>
 </div>
 `).join('');
@@ -289,6 +294,10 @@ this.displayHumorError();
 }
 displayWeatherWidget(data) {
 const weatherContainer = document.getElementById('weather-widget');
+if (!weatherContainer) {
+console.error('[displayWeatherWidget] Container element not found');
+return;
+}
 const isError = data.error;
 weatherContainer.innerHTML =
 '<div class="widget-header">' +
@@ -308,12 +317,43 @@ weatherContainer.innerHTML =
 }
 displayHumorWidget(jokes) {
 const humorContainer = document.getElementById('humor-widget');
-const chuckJoke = jokes.chuck ? (jokes.chuck.value || jokes.chuck.joke) : 'Chuck Norris joke unavailable';
-const progJoke = jokes.programming ? (jokes.programming.joke || jokes.programming.setup + ' ' + jokes.programming.delivery) : 'Programming joke unavailable';
+if (!humorContainer) {
+console.error('[displayHumorWidget] Container element not found');
+return;
+}
+console.log('[displayHumorWidget] Jokes data received:', jokes);
+// Handle Chuck Norris joke
+let chuckJoke = 'Chuck Norris joke unavailable';
+if (jokes && jokes.chuck) {
+if (typeof jokes.chuck === 'string') {
+chuckJoke = jokes.chuck;
+} else if (jokes.chuck.value) {
+chuckJoke = jokes.chuck.value;
+} else if (jokes.chuck.joke) {
+chuckJoke = jokes.chuck.joke;
+} else if (jokes.chuck.message) {
+chuckJoke = jokes.chuck.message;
+}
+}
+console.log('[displayHumorWidget] Chuck joke:', chuckJoke);
+// Handle Programming joke
+let progJoke = 'Programming joke unavailable';
+if (jokes && jokes.programming) {
+if (typeof jokes.programming === 'string') {
+progJoke = jokes.programming;
+} else if (jokes.programming.joke) {
+progJoke = jokes.programming.joke;
+} else if (jokes.programming.setup && jokes.programming.delivery) {
+progJoke = jokes.programming.setup + ' ' + jokes.programming.delivery;
+} else if (jokes.programming.message) {
+progJoke = jokes.programming.message;
+}
+}
+console.log('[displayHumorWidget] Programming joke:', progJoke);
 humorContainer.innerHTML =
 '<div class="widget-header">' +
 '<h3>Campus Humor</h3>' +
-'<button class="refresh-btn" onclick="dashboard.refreshHumor()">New Jokes</button>' +
+'<button class="refresh-btn" onclick="if(window.dashboard) window.dashboard.refreshHumor(); else alert(\'Dashboard not ready\');">New Jokes</button>' +
 '</div>' +
 '<div class="humor-content">' +
 '<div class="joke-section">' +
@@ -350,18 +390,23 @@ this.updateTimeDisplays();
 }
 async refreshHumor() {
 console.log('refreshHumor called');
+try {
 const button = document.querySelector('.refresh-btn');
 if (button) {
+console.log('Found refresh button, showing loading state');
 button.textContent = 'Loading...';
 button.disabled = true;
 }
-try {
 console.log('About to call loadHumorData()');
 await this.loadHumorData();
-console.log('loadHumorData() completed');
+console.log('loadHumorData() completed successfully');
+if (button) {
+button.textContent = 'New Jokes';
+button.disabled = false;
+}
 } catch (error) {
 console.error('Error in refreshHumor:', error);
-} finally {
+const button = document.querySelector('.refresh-btn');
 if (button) {
 button.textContent = 'New Jokes';
 button.disabled = false;
@@ -473,6 +518,239 @@ const minutes = Math.floor((Date.now() - this.lastUpdated.get(service)) / 60000)
 return minutes === 0 ? 'Just now' : minutes + ' min ago';
 }
 }
+// ============ COURSE CRUD FUNCTIONS ============
+function showAddCourseModal() {
+  const modal = document.getElementById('courseFormModal');
+  if (!modal) {
+    console.error('Course form modal not found. Creating it...');
+    createCourseFormModal();
+    return;
+  }
+  
+  // Reset form
+  const form = document.getElementById('courseForm');
+  if (form) {
+    form.reset();
+    document.getElementById('modalTitle').textContent = 'Add New Course';
+    document.getElementById('courseId').value = '';
+    document.getElementById('submitBtn').textContent = 'Add Course';
+  }
+  
+  modal.style.display = 'block';
+}
+
+function showEditCourseModal(courseId) {
+  const modal = document.getElementById('courseFormModal');
+  const dashboard = window.dashboard;
+  
+  if (!dashboard || !modal) {
+    console.error('Dashboard or modal not initialized');
+    return;
+  }
+  
+  const course = dashboard.courseCatalog.getCourseById(parseInt(courseId));
+  if (!course) {
+    alert('Course not found');
+    return;
+  }
+  
+  // Populate form with course data
+  document.getElementById('courseId').value = course.id;
+  document.getElementById('courseCode').value = course.code;
+  document.getElementById('courseName').value = course.name;
+  document.getElementById('department').value = course.department;
+  document.getElementById('instructor').value = course.instructor;
+  document.getElementById('credits').value = course.credits;
+  document.getElementById('enrollment').value = course.enrollment;
+  document.getElementById('capacity').value = course.capacity;
+  document.getElementById('description').value = course.description || '';
+  
+  document.getElementById('modalTitle').textContent = 'Edit Course';
+  document.getElementById('submitBtn').textContent = 'Update Course';
+  
+  modal.style.display = 'block';
+}
+
+function closeCourseModal() {
+  const modal = document.getElementById('courseFormModal');
+  if (modal) {
+    modal.style.display = 'none';
+  }
+}
+
+function handleCourseFormSubmit(event) {
+  event.preventDefault();
+  
+  const dashboard = window.dashboard;
+  if (!dashboard) {
+    alert('Dashboard not initialized');
+    return;
+  }
+  
+  const courseId = document.getElementById('courseId').value;
+  const courseData = {
+    code: document.getElementById('courseCode').value.trim(),
+    name: document.getElementById('courseName').value.trim(),
+    department: document.getElementById('department').value,
+    instructor: document.getElementById('instructor').value.trim(),
+    credits: parseInt(document.getElementById('credits').value),
+    enrollment: parseInt(document.getElementById('enrollment').value),
+    capacity: parseInt(document.getElementById('capacity').value),
+    description: document.getElementById('description').value.trim()
+  };
+  
+  let result;
+  
+  if (courseId) {
+    // Update existing course
+    result = dashboard.courseCatalog.updateCourse(parseInt(courseId), courseData);
+    if (result.success) {
+      console.log('Course updated successfully');
+      dashboard.displayCourses(dashboard.courseCatalog.courses);
+      closeCourseModal();
+      showNotification('Course updated successfully!');
+    } else {
+      showNotification('Error: ' + (result.errors ? result.errors.join(', ') : 'Unknown error'), 'error');
+    }
+  } else {
+    // Add new course
+    result = dashboard.courseCatalog.addCourse(courseData);
+    if (result.success) {
+      console.log('Course added successfully');
+      dashboard.displayCourses(dashboard.courseCatalog.courses);
+      closeCourseModal();
+      showNotification('Course added successfully!');
+    } else {
+      showNotification('Error: ' + (result.errors ? result.errors.join(', ') : 'Unknown error'), 'error');
+    }
+  }
+}
+
+function handleDeleteCourse(courseId) {
+  const courseIdNum = parseInt(courseId);
+  const dashboard = window.dashboard;
+  
+  if (!dashboard) {
+    alert('Dashboard not initialized');
+    return;
+  }
+  
+  const course = dashboard.courseCatalog.getCourseById(courseIdNum);
+  if (!course) {
+    alert('Course not found');
+    return;
+  }
+  
+  const confirmed = confirm(
+    `Are you sure you want to delete "${course.name}" (${course.code})? This action cannot be undone.`
+  );
+  
+  if (confirmed) {
+    const result = dashboard.courseCatalog.deleteCourse(courseIdNum);
+    if (result.success) {
+      console.log('Course deleted successfully');
+      dashboard.displayCourses(dashboard.courseCatalog.courses);
+      showNotification('Course deleted successfully!');
+    } else {
+      showNotification('Error deleting course: ' + result.error, 'error');
+    }
+  }
+}
+
+function createCourseFormModal() {
+  const modalHTML = `
+    <div id="courseFormModal" class="modal" style="display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);">
+      <div class="modal-content" style="background-color:#fefefe;margin:auto;padding:20px;border:1px solid #888;width:90%;max-width:600px;border-radius:8px;margin-top:50px;box-shadow:0 4px 6px rgba(0,0,0,0.1);max-height:90vh;overflow-y:auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+          <h2 id="modalTitle" style="margin:0;color:#333;">Add New Course</h2>
+          <button type="button" onclick="closeCourseModal()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#666;">&times;</button>
+        </div>
+        
+        <form id="courseForm" onsubmit="handleCourseFormSubmit(event)">
+          <input type="hidden" id="courseId" value="">
+          
+          <div style="margin-bottom:15px;">
+            <label for="courseCode" style="display:block;margin-bottom:5px;font-weight:bold;">Course Code *</label>
+            <input type="text" id="courseCode" placeholder="e.g., ICS 385" required style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;box-sizing:border-box;">
+          </div>
+          
+          <div style="margin-bottom:15px;">
+            <label for="courseName" style="display:block;margin-bottom:5px;font-weight:bold;">Course Name *</label>
+            <input type="text" id="courseName" placeholder="e.g., Web Development" required style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;box-sizing:border-box;">
+          </div>
+          
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:15px;">
+            <div>
+              <label for="department" style="display:block;margin-bottom:5px;font-weight:bold;">Department *</label>
+              <select id="department" required style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;box-sizing:border-box;">
+                <option value="">Select...</option>
+                <option value="ICS">ICS</option>
+                <option value="MATH">MATH</option>
+                <option value="ENG">ENG</option>
+                <option value="CHEM">CHEM</option>
+                <option value="PHYS">PHYS</option>
+                <option value="BUSN">BUSN</option>
+              </select>
+            </div>
+            
+            <div>
+              <label for="credits" style="display:block;margin-bottom:5px;font-weight:bold;">Credits *</label>
+              <input type="number" id="credits" min="1" max="6" value="3" required style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;box-sizing:border-box;">
+            </div>
+          </div>
+          
+          <div style="margin-bottom:15px;">
+            <label for="instructor" style="display:block;margin-bottom:5px;font-weight:bold;">Instructor *</label>
+            <input type="text" id="instructor" placeholder="Dr. Name" required style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;box-sizing:border-box;">
+          </div>
+          
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;margin-bottom:15px;">
+            <div>
+              <label for="enrollment" style="display:block;margin-bottom:5px;font-weight:bold;">Enrollment *</label>
+              <input type="number" id="enrollment" min="0" value="0" required style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;box-sizing:border-box;">
+            </div>
+            
+            <div>
+              <label for="capacity" style="display:block;margin-bottom:5px;font-weight:bold;">Capacity *</label>
+              <input type="number" id="capacity" min="1" value="30" required style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;box-sizing:border-box;">
+            </div>
+          </div>
+          
+          <div style="margin-bottom:20px;">
+            <label for="description" style="display:block;margin-bottom:5px;font-weight:bold;">Description</label>
+            <textarea id="description" placeholder="Course description..." rows="3" style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;box-sizing:border-box;"></textarea>
+          </div>
+          
+          <div style="display:flex;gap:10px;justify-content:flex-end;">
+            <button type="button" onclick="closeCourseModal()" style="padding:10px 20px;background-color:#ccc;border:1px solid #999;border-radius:4px;cursor:pointer;font-size:14px;">Cancel</button>
+            <button type="submit" id="submitBtn" style="padding:10px 20px;background-color:#4CAF50;color:white;border:none;border-radius:4px;cursor:pointer;font-size:14px;">Add Course</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `;
+  
+  document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+function showNotification(message, type = 'success') {
+  const notificationId = 'notification-' + Date.now();
+  const bgColor = type === 'error' ? '#f44336' : '#4CAF50';
+  const notificationHTML = `
+    <div id="${notificationId}" style="position:fixed;top:20px;right:20px;background-color:${bgColor};color:white;padding:15px 20px;border-radius:4px;z-index:2000;box-shadow:0 2px 5px rgba(0,0,0,0.2);">${message}</div>
+  `;
+  
+  document.body.insertAdjacentHTML('beforeend', notificationHTML);
+  
+  setTimeout(() => {
+    const notification = document.getElementById(notificationId);
+    if (notification) {
+      notification.remove();
+    }
+  }, 3000);
+}
+
+// ============ DASHBOARD INITIALIZATION ============
 // Initialize dashboard when DOM is ready (if not already initialized by HTML)
 document.addEventListener('DOMContentLoaded', function() {
 console.log('DOMContentLoaded event fired');
@@ -482,6 +760,17 @@ if (!window.dashboard && typeof CampusDashboard !== 'undefined' && typeof appCon
 console.log('Initializing dashboard from DOMContentLoaded');
 setTimeout(() => {
 window.dashboard = new CampusDashboard();
+
+// Create course form modal and setup modal close on outside click
+createCourseFormModal();
+const modal = document.getElementById('courseFormModal');
+if (modal) {
+window.addEventListener('click', function(event) {
+if (event.target === modal) {
+closeCourseModal();
+}
+});
+}
 }, 100);
 } else if (typeof appConfig === 'undefined') {
 console.error('Cannot initialize: appConfig is not defined');

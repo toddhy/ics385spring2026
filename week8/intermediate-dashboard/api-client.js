@@ -190,15 +190,20 @@ console.log('[getAllJokes] Results:', results);
 const chuck = results[0];
 const programming = results[1];
 console.log('[getAllJokes] Chuck status:', chuck.status, 'Programming status:', programming.status);
+// Ensure consistent data format
+const chuckData = chuck.status === 'fulfilled' ? chuck.value : null;
+const progData = programming.status === 'fulfilled' ? programming.value : null;
+console.log('[getAllJokes] Chuck data:', chuckData);
+console.log('[getAllJokes] Programming data:', progData);
 return {
-chuck: chuck.status === 'fulfilled' ? chuck.value : { error: true, message: chuck.reason },
-programming: programming.status === 'fulfilled' ? programming.value : { error: true, message: programming.reason }
+chuck: chuckData || { value: 'Chuck Norris doesn\'t need the internet. The internet needs Chuck Norris.', error: true, message: 'Using fallback' },
+programming: progData || { joke: 'Why do programmers prefer dark mode? Because light attracts bugs!', error: true, message: 'Using fallback' }
 };
 } catch (error) {
 console.error('[getAllJokes] Error:', error);
 return {
-chuck: { error: true, message: 'Failed to fetch Chuck Norris joke' },
-programming: { error: true, message: 'Failed to fetch programming joke' }
+chuck: { value: 'Chuck Norris doesn\'t need the internet. The internet needs Chuck Norris.', error: true, message: error.message },
+programming: { joke: 'Why do programmers prefer dark mode? Because light attracts bugs!', error: true, message: error.message }
 };
 }
 }
