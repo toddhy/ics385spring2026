@@ -143,15 +143,9 @@ this.handleInitializationError(error);
 }
 }
 initializeApiKeySetup() {
-// Show API key setup modal if keys are missing
-const hasOpenWeather = localStorage.getItem('openweather_api_key');
-const hasRapidApi = localStorage.getItem('rapidapi_api_key');
-if (!hasOpenWeather || !hasRapidApi) {
-console.log('Showing API key modal - missing keys');
-this.showApiKeySetupModal();
-} else {
-console.log('API keys found in localStorage');
-}
+  // API keys are now managed server-side by the proxy
+  // No need to prompt user or check localStorage
+  console.log('[initializeApiKeySetup] Using server-side key injection (no client setup needed)');
 }
 showApiKeySetupModal() {
 const modal = document.getElementById('apiKeyModal');
@@ -325,20 +319,34 @@ console.log('[displayHumorWidget] Jokes data received:', jokes);
 // Handle Chuck Norris joke
 let chuckJoke = 'Chuck Norris joke unavailable';
 if (jokes && jokes.chuck) {
+console.log('[displayHumorWidget] Chuck object:', jokes.chuck);
+console.log('[displayHumorWidget] Chuck keys:', Object.keys(jokes.chuck));
+console.log('[displayHumorWidget] Chuck.value exists?', 'value' in jokes.chuck);
+console.log('[displayHumorWidget] Chuck.value:', jokes.chuck.value);
+console.log('[displayHumorWidget] Chuck.joke:', jokes.chuck.joke);
+console.log('[displayHumorWidget] Chuck.message:', jokes.chuck.message);
 if (typeof jokes.chuck === 'string') {
 chuckJoke = jokes.chuck;
 } else if (jokes.chuck.value) {
 chuckJoke = jokes.chuck.value;
+console.log('[displayHumorWidget] Used .value');
 } else if (jokes.chuck.joke) {
 chuckJoke = jokes.chuck.joke;
+console.log('[displayHumorWidget] Used .joke');
 } else if (jokes.chuck.message) {
 chuckJoke = jokes.chuck.message;
+console.log('[displayHumorWidget] Used .message');
+} else {
+// Fallback: try to get any text-like property
+chuckJoke = JSON.stringify(jokes.chuck).substring(0, 100);
+console.warn('[displayHumorWidget] No recognizable joke field in Chuck response:', jokes.chuck);
 }
 }
-console.log('[displayHumorWidget] Chuck joke:', chuckJoke);
+console.log('[displayHumorWidget] Final Chuck joke:', chuckJoke);
 // Handle Programming joke
 let progJoke = 'Programming joke unavailable';
 if (jokes && jokes.programming) {
+console.log('[displayHumorWidget] Programming object:', jokes.programming);
 if (typeof jokes.programming === 'string') {
 progJoke = jokes.programming;
 } else if (jokes.programming.joke) {
@@ -349,7 +357,7 @@ progJoke = jokes.programming.setup + ' ' + jokes.programming.delivery;
 progJoke = jokes.programming.message;
 }
 }
-console.log('[displayHumorWidget] Programming joke:', progJoke);
+console.log('[displayHumorWidget] Final Programming joke:', progJoke);
 humorContainer.innerHTML =
 '<div class="widget-header">' +
 '<h3>Campus Humor</h3>' +

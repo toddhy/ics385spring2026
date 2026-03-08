@@ -1,0 +1,13 @@
+{
+  "name": "campus-dashboard",
+  "version": "1.0.0",
+  "description": "UH Maui Campus Dashboard with multi-API integration",
+  "main": "proxy-server.js",
+  "scripts": {
+    "start": "node proxy-server.js",
+    "dev": "node proxy-server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.3"
+  }
+}

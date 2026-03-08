@@ -1,10 +1,11 @@
 // Simple CORS proxy server for the dashboard
+require('dotenv').config();
 const http = require('http');
 const https = require('https');
 const url = require('url');
 const querystring = require('querystring');
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 const server = http.createServer(async (req, res) => {
   // Enable CORS
@@ -28,10 +29,37 @@ const server = http.createServer(async (req, res) => {
   const query = parsedUrl.query;
   
   try {
-    // Route: /proxy?url=...&headers=...
+    // Route: /config - Return safe configuration without exposing API keys
+    if (pathname === '/config') {
+      console.log('[config] Returning proxy configuration');
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({
+        apis: {
+          openWeather: {
+            host: 'api.openweathermap.org',
+            baseUrl: 'https://api.openweathermap.org/data/2.5',
+            timeout: 5000
+          },
+          rapidApi: {
+            host: 'matchilling-chuck-norris-jokes-v1.p.rapidapi.com',
+            baseUrl: 'https://matchilling-chuck-norris-jokes-v1.p.rapidapi.com',
+            timeout: 3000
+          },
+          jokeApi: {
+            host: 'sv443.net',
+            baseUrl: 'https://sv443.net/jokeapi/v2',
+            timeout: 3000
+          }
+        },
+        proxyUrl: `http://localhost:${PORT}`
+      }));
+      return;
+    }
+    
+    // Route: /proxy?url=...
     if (pathname === '/proxy') {
       const targetUrl = query.url;
-      const headersJson = query.headers ? JSON.parse(query.headers) : {};
+      const service = query.service; // To identify which API and inject correct keys
       
       if (!targetUrl) {
         res.writeHead(400);
@@ -40,22 +68,50 @@ const server = http.createServer(async (req, res) => {
       }
       
       console.log(`[proxy] Forwarding request to: ${targetUrl}`);
-      console.log(`[proxy] Headers:`, headersJson);
+      console.log(`[proxy] Service: ${service}`);
       
       // Determine if HTTPS or HTTP
       const protocol = targetUrl.startsWith('https') ? https : http;
       
       // Parse the URL to extract options for the request
       const parsedTargetUrl = url.parse(targetUrl);
+      let targetPath = parsedTargetUrl.path;
+      
+      // Inject API keys server-side for different services
+      const headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Content-Type': 'application/json'
+      };
+      
+      // Inject OpenWeather API key
+      if (service === 'openWeather') {
+        const openWeatherKey = process.env.OPENWEATHER_API_KEY;
+        if (openWeatherKey) {
+          const separator = targetPath.includes('?') ? '&' : '?';
+          targetPath += separator + 'appid=' + encodeURIComponent(openWeatherKey);
+          console.log('[proxy] Injected OpenWeather API key');
+        }
+      }
+      
+      // Inject RapidAPI headers
+      if (service === 'rapidApi') {
+        const rapidApiKey = process.env.RAPIDAPI_KEY;
+        const rapidApiHost = process.env.RAPIDAPI_HOST;
+        if (rapidApiKey && rapidApiHost) {
+          headers['X-RapidAPI-Key'] = rapidApiKey;
+          headers['X-RapidAPI-Host'] = rapidApiHost;
+          console.log('[proxy] Injected RapidAPI credentials');
+        }
+      }
+      
+      // JokeAPI doesn't require keys
+      
       const options = {
         hostname: parsedTargetUrl.hostname,
         port: parsedTargetUrl.port,
-        path: parsedTargetUrl.path,
+        path: targetPath,
         method: 'GET',
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          ...headersJson
-        }
+        headers: headers
       };
       
       console.log(`[proxy] Options:`, { hostname: options.hostname, path: options.path.substring(0, 100) });
@@ -117,8 +173,11 @@ server.listen(PORT, () => {
   console.log(`\n============================================`);
   console.log(`🚀 Proxy Server running on http://localhost:${PORT}`);
   console.log(`============================================`);
-  console.log(`Usage: http://localhost:${PORT}/proxy?url=<encoded_url>&headers=<encoded_headers>`);
-  console.log(`Health check: http://localhost:${PORT}/health`);
+  console.log(`Endpoints:`);
+  console.log(`  GET  /config  - Get proxy configuration`);
+  console.log(`  GET  /proxy?url=<url>&service=<service> - Forward API requests with key injection`);
+  console.log(`  GET  /health - Health check`);
+  console.log(`\nAPI Keys: ${process.env.OPENWEATHER_API_KEY ? '✓ OpenWeather' : '✗ OpenWeather'} ${process.env.RAPIDAPI_KEY ? '✓ RapidAPI' : '✗ RapidAPI'}`);
   console.log(`\nPress Ctrl+C to stop\n`);
 });
 

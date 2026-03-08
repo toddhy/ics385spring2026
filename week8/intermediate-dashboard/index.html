@@ -92,9 +92,9 @@ window.addEventListener('error', function(e) {
 </div>
 <div class="actions-grid">
 <button class="action-btn" onclick="showAddCourseModal()">Add Course</button>
-<button class="action-btn" onclick="if(window.dashboard)dashboard.exportData(); else alert('Dashboard not ready');">Export Data</button>
-<button class="action-btn" onclick="if(window.dashboard)dashboard.refreshWeather(); else alert('Dashboard not ready');">Update Weather</button>
-<button class="action-btn" onclick="if(window.dashboard)dashboard.refreshHumor(); else alert('Dashboard not ready');">New Jokes</button>
+<button class="action-btn" onclick="if(window.dashboard)window.dashboard.exportData(); else alert('Dashboard not ready');">Export Data</button>
+<button class="action-btn" onclick="if(window.dashboard)window.dashboard.refreshWeather(); else alert('Dashboard not ready');">Update Weather</button>
+<button class="action-btn" onclick="if(window.dashboard)window.dashboard.refreshHumor(); else alert('Dashboard not ready');">New Jokes</button>
 </div>
 </section>
 </main>

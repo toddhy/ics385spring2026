@@ -19,6 +19,13 @@ period: this.config.apis[service].rateLimit.period
 async makeRequest(service, endpoint, params = {}, options = {}) {
 try {
 console.log('[makeRequest] Starting request for', service, endpoint);
+
+// Validate proxy URL is available
+if (!this.config.app || !this.config.app.proxyUrl) {
+console.error('[makeRequest] Proxy URL not configured in config', this.config.app);
+throw new Error('Proxy server URL not configured. Check that .env file has API keys.');
+}
+
 // Check rate limiting
 if (!this.checkRateLimit(service)) {
 throw new Error('Rate limit exceeded for ' + service + '. Please wait.');
@@ -33,16 +40,16 @@ return this.cache.get(cacheKey).data;
 console.log('[makeRequest] Building request for', service);
 const requestConfig = this.buildRequest(service, endpoint, params, options);
 console.log('[makeRequest] Request URL:', requestConfig.url);
-console.log('[makeRequest] Request headers:', requestConfig.options.headers);
 // Make request with timeout - use proxy server to avoid CORS issues
 const controller = new AbortController();
 const timeoutId = setTimeout(() => controller.abort(),
 this.config.apis[service].timeout);
-console.log('[makeRequest] Fetching from', requestConfig.url);
-// Use proxy server to handle CORS
-const proxyUrl = 'http://localhost:3000/proxy?url=' + encodeURIComponent(requestConfig.url) + 
-  '&headers=' + encodeURIComponent(JSON.stringify(requestConfig.options.headers));
-console.log('[makeRequest] Using proxy:', proxyUrl);
+console.log('[makeRequest] Fetching from proxy');
+// Use proxy server to handle CORS and inject API keys server-side
+// Proxy will add API keys based on the service parameter
+const proxyUrl = this.config.app.proxyUrl + '/proxy?url=' + encodeURIComponent(requestConfig.url) + 
+  '&service=' + encodeURIComponent(service);
+console.log('[makeRequest] Using proxy:', proxyUrl.split('?')[0] + '?...');
 const response = await fetch(proxyUrl, {
 method: 'GET',
 signal: controller.signal
@@ -65,36 +72,33 @@ console.error('[makeRequest] Error caught:', error);
 console.error('[makeRequest] Error type:', error?.constructor?.name);
 console.error('[makeRequest] Error message:', error?.message);
 console.error('[makeRequest] Full error:', error);
-console.warn('[makeRequest] Make sure proxy server is running: node proxy-server.js');
+console.warn('[makeRequest] Make sure proxy server is running: npm start');
 return this.handleApiError(service, endpoint, error);
 }
 }
 buildRequest(service, endpoint, params, options) {
 const apiConfig = this.config.apis[service];
 console.log('[buildRequest] Service:', service);
-console.log('[buildRequest] API Config key exists:', !!apiConfig.key);
-console.log('[buildRequest] API Config key length:', apiConfig.key ? apiConfig.key.length : 0);
+console.log('[buildRequest] Building request (API keys injected by proxy)');
 let url = apiConfig.baseUrl + endpoint;
 const headers = { 'Content-Type': 'application/json', ...options.headers };
 switch (service) {
 case 'openWeather':
-console.log('[buildRequest] Building openWeather request with key:', apiConfig.key ? 'YES' : 'NO');
+console.log('[buildRequest] Building openWeather request with proxy key injection');
+// Add params but NOT the appid - proxy will inject it
 const weatherParams = new URLSearchParams({
 ...params,
-appid: apiConfig.key,
 units: 'imperial'
 });
 url += '?' + weatherParams.toString();
-console.log('[buildRequest] Final openWeather URL:', url);
+console.log('[buildRequest] Final openWeather URL (key-free):', url);
 break;
 case 'rapidApi':
-console.log('[buildRequest] Building rapidApi request with key:', apiConfig.key ? 'YES' : 'NO');
-headers['X-RapidAPI-Key'] = apiConfig.key;
-headers['X-RapidAPI-Host'] = apiConfig.host;
-console.log('[buildRequest] RapidAPI headers set:', Object.keys(headers));
+console.log('[buildRequest] Building rapidApi request (proxy will inject X-RapidAPI-Key)');
+// Don't add headers here - proxy will inject them server-side
 break;
 case 'jokeApi':
-console.log('[buildRequest] Building jokeApi request');
+console.log('[buildRequest] Building jokeApi request (no keys required)');
 if (Object.keys(params).length > 0) {
 url += '?' + new URLSearchParams(params).toString();
 }

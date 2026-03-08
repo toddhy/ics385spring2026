@@ -34,20 +34,35 @@ This dashboard combines real-time information with local course management:
 
 ## � Quick Start
 
-### 1. Open the Dashboard
+### 1. Install Dependencies
+```bash
+npm install
+```
+This installs the `dotenv` package needed to load environment variables.
+
+### 2. Configure API Keys
+Create or edit the `.env` file in the dashboard directory:
+```bash
+# .env file
+OPENWEATHER_API_KEY=your_openweather_key_here
+RAPIDAPI_KEY=your_rapidapi_key_here
+RAPIDAPI_HOST=matchilling-chuck-norris-jokes-v1.p.rapidapi.com
+PORT=3000
+```
+
+### 3. Start the Proxy Server
+```bash
+npm start
+```
+The proxy server will start on `http://localhost:3000`
+
+### 4. Open the Dashboard
 ```
 Open: index.html in your browser
 (Use Live Server extension in VS Code)
 ```
 
-### 2. Set API Keys (First Time Only)
-- If API keys are missing, a settings dialog appears automatically
-- Enter your API keys:
-  - **OpenWeather API Key** - For weather data
-  - **RapidAPI Key** - For Chuck Norris jokes
-- Click "Save" and page reloads with live data
-
-### 3. Explore the Dashboard
+### 5. Explore the Dashboard
 - **Top section:** Quick stats cards (courses, students, capacity, API status)
 - **Left column:** Weather widget showing current conditions
 - **Center column:** Course management with search and filters
@@ -175,7 +190,7 @@ Because he used up all his cache!"
 - Location: Kahului, Hawaii (19.7191° N, 156.4717° W)
 - Updates: Every 10 minutes automatically, or manually
 
-**Key Requirement:** OpenWeather API key stored in browser localStorage
+**Key Requirement:** OpenWeather API key stored in `.env` file
 
 ---
 
@@ -317,14 +332,44 @@ Because he used up all his cache!"
 
 ## ⚙️ API Configuration
 
+### Secure Server-Side Key Management
+
+**API keys are now stored securely on the server (`.env` file)** and injected server-side by the proxy. The frontend NEVER handles API keys.
+
+**Architecture:**
+```
+Frontend (no keys) 
+  → Requests to proxy with service parameter
+    → Proxy injects API keys from .env
+      → Forwards to external APIs
+        → Response back to frontend
+```
+
+**How it works:**
+1. Proxy server loads `.env` file on startup
+2. Frontend requests: `http://localhost:3000/proxy?url=<api-url>&service=<service>`
+3. Proxy identifies the service and injects the appropriate keys:
+   - **openWeather:** Adds `appid` parameter
+   - **rapidApi:** Adds `X-RapidAPI-Key` and `X-RapidAPI-Host` headers
+   - **jokeApi:** No keys needed
+4. Response returned to frontend
+
+**Keys are never exposed to:**
+- Browser console
+- Network requests visible to user
+- Frontend JavaScript code
+- localStorage or sessionStorage
+
 ### Setting API Keys
 
-**When you first open the dashboard:**
-- If keys are missing, a settings dialog appears
-- Enter your OpenWeather API key
-- Enter your RapidAPI key
-- Click "Save"
-- Page reloads with live data
+**Edit `.env` file in the dashboard directory:**
+```bash
+# .env file
+OPENWEATHER_API_KEY=your_key_here
+RAPIDAPI_KEY=your_key_here
+RAPIDAPI_HOST=matchilling-chuck-norris-jokes-v1.p.rapidapi.com
+PORT=3000
+```
 
 **Where to Get Keys:**
 
@@ -344,20 +389,44 @@ Because he used up all his cache!"
 
 ### API Integration
 
-**Proxy Server:**
+### API Integration
+
+**Proxy Server Architecture:**
 - Node.js proxy running on `localhost:3000`
-- Routes API requests to bypass CORS restrictions
+- Loads API keys from `.env` file at startup
+- Provides `/config` endpoint for frontend configuration
+- Provides `/proxy` endpoint for forwarding API requests with key injection
+- Bypasses CORS restrictions
+- Secures API keys by keeping them server-side only
 - Automatically used by the dashboard
-- Must be running for APIs to work
 
-**How it Works:**
+**How Requests Flow:**
 ```
-Dashboard → Proxy Server (localhost:3000) → External APIs
-Response returns through proxy back to dashboard
+Client Request → Proxy Server → External API
+                 ↓ (adds keys)        ↓
+                 Injects auth     Returns JSON
+                 from .env        → Client
 ```
 
-**Keep Running:**
-The proxy server (port 3000) must stay running. If it stops:
+**Endpoints:**
+- `GET /config` - Returns safe configuration (no keys exposed)
+- `GET /proxy?url=<url>&service=<service>` - Forwards requests with key injection
+- `GET /health` - Health check
+
+**API Key Injection:**
+Proxy automatically adds:
+- **OpenWeather:** `appid` parameter to query string
+- **RapidAPI:** `X-RapidAPI-Key` and `X-RapidAPI-Host` headers
+- **JokeAPI:** No keys (public API)
+
+**Start Proxy Server:**
+```bash
+npm start
+# Or directly: node proxy-server.js
+# Server will display status of loaded API keys
+```
+
+The proxy server must be running for APIs to work. If it stops:
 - Weather won't update
 - Jokes won't load
 - API status shows "Disconnected"
@@ -390,11 +459,12 @@ The proxy server (port 3000) must stay running. If it stops:
 - ✅ Clear browser cache and try again
 
 ### API Status Shows "Disconnected"
-**Problem:** Proxy server is not running or unreachable
+**Proxy Server is not running or unreachable:**
+- ✅ Check that `.env` file exists with API keys configured
 - ✅ Start the proxy server: `npm start` in terminal
 - ✅ Check that it's running on localhost:3000
 - ✅ Look for Node.js errors in terminal output
-- ✅ Try restarting the server
+- ✅ Try restarting the server with: `npm start`
 
 ### Forms Don't Submit or Validate
 **Problem:** Course form validation issues
@@ -412,13 +482,21 @@ The proxy server (port 3000) must stay running. If it stops:
 - `dashboard.js` - Dashboard logic and form handling
 - `api-client.js` - External API communication
 - `course-catalog.js` - Course data management
-- `config.js` - API keys and configuration
+- `config.js` - Configuration from environment
+- `proxy-server.js` - Node.js proxy server for CORS
 - `styles.css` - Dashboard styling
+- `.env` - Environment variables (API keys)
+- `package.json` - Node.js dependencies
 
 **Browser Requirements:**
 - Modern browser with ES6+ support
 - localStorage enabled
 - Internet connection for APIs
+
+**Server Requirements:**
+- Node.js installed
+- dotenv package (`npm install`)
+- Proxy server running (`npm start`)
 
 **Default Course Data:**
 Dashboard comes with 8 pre-loaded UH Maui College courses. You can add, edit, and delete courses. All courses are stored in browser localStorage.
