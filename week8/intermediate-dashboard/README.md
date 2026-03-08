@@ -475,7 +475,141 @@ The proxy server must be running for APIs to work. If it stops:
 
 ---
 
-## 📚 Technical Details
+## � Security Implementation
+
+### Overview
+This dashboard implements **server-side security** to protect API credentials and prevent exposure of sensitive data to the browser.
+
+### Key Security Features
+
+#### 1. **Server-Side API Key Injection**
+- API keys are stored in `.env` file (server-side only)
+- **Never exposed to browser or network requests**
+- Proxy server injects keys before forwarding requests to external APIs
+- Frontend never handles or stores API credentials
+
+**How it works:**
+```
+Frontend request: /proxy?url=<api>&service=openWeather
+         ↓
+Server (proxy): Loads API keys from .env
+         ↓
+Server adds credentials to request
+         ↓
+Forwards to external API with auth headers
+```
+
+#### 2. **Environment Variable Protection**
+- `.env` file contains all sensitive credentials
+- `.env` is NOT committed to version control (add to `.gitignore`)
+- Only the server process can access these variables
+- Different keys can be set per environment (dev, staging, prod)
+
+**Required format:**
+```bash
+OPENWEATHER_API_KEY=your_key_here
+RAPIDAPI_KEY=your_key_here
+RAPIDAPI_HOST=matchilling-chuck-norris-jokes-v1.p.rapidapi.com
+PORT=3000
+```
+
+#### 3. **Proxy Server Architecture**
+The proxy server acts as a **security intermediary**:
+
+- **CORS Handling:** Bypasses CORS restrictions safely
+- **Request Routing:** All API calls go through `/proxy` endpoint
+- **Header Injection:** Adds authentication headers server-side
+- **Response Handling:** Returns only necessary data to frontend
+- **Request Logging:** Logs all API interactions for monitoring
+
+**Proxy Endpoints:**
+```
+GET /config     - Returns safe config (no keys exposed)
+GET /proxy      - Forwards requests with key injection
+GET /health     - Health check
+```
+
+#### 4. **Secure Configuration Loading**
+- `config.js` fetches configuration from `/config` endpoint
+- Proxy provides safe config data (API hosts, timeouts, etc.)
+- Configuration loaded asynchronously before API calls begin
+- Fallback to defaults if proxy unavailable
+
+#### 5. **Error Handling**
+- API errors are caught and logged server-side
+- Generic error messages returned to frontend (no internal details)
+- Fallback data provided for all services
+- User-friendly error messages in UI
+
+**Error Flow:**
+```
+API Error → Server catches & logs
+         → Frontend receives message
+         → Fallback data displayed
+         → User sees graceful degradation
+```
+
+#### 6. **Rate Limiting**
+- Per-service rate limits enforced client-side
+- 60 requests/min for OpenWeather
+- 100 requests/min for RapidAPI
+- 120 requests/min for JokeAPI
+- Prevents API quota abuse
+
+#### 7. **Data Caching**
+- Responses cached for 10 minutes
+- Reduces API calls and costs
+- Cache validity checked before making requests
+- Improves dashboard performance
+
+### Security Best Practices
+
+✅ **DO:**
+- Keep `.env` file in `.gitignore`
+- Change API keys periodically
+- Monitor proxy logs for suspicious activity
+- Use HTTPS in production
+- Restrict API keys to specific services/domains in API provider settings
+
+❌ **DON'T:**
+- Commit `.env` file to version control
+- Share `.env` file in public repositories
+- Expose API keys in client-side code
+- Log sensitive data to browser console
+- Allow unauthenticated access to proxy endpoints
+
+### Production Deployment
+
+When deploying to production:
+
+1. **Environment Variables:**
+   - Set via hosting platform (Heroku, AWS, etc.)
+   - NOT committed to repository
+   - Keep separate dev/prod keys
+
+2. **CORS Configuration:**
+   - Restrict proxy to specific allowed origins
+   - Update in proxy-server.js or environment
+
+3. **HTTPS Enforcement:**
+   - Use SSL/TLS certificates
+   - Redirect HTTP to HTTPS
+   - Set secure cookie flags
+
+4. **Authentication:**
+   - Add API authentication to proxy (if public)
+   - Consider OAuth for user access
+   - Rate limit by IP or user
+
+5. **Monitoring:**
+   - Log all API requests
+   - Monitor for failed requests
+   - Alert on unusual patterns
+   - Track API quota usage
+
+---
+
+## �📚 Technical Details
 
 **Core Files:**
 - `index.html` - Dashboard structure and layout

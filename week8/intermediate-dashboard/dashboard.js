@@ -1,38 +1,91 @@
 // dashboard.js - Main dashboard controller
+// 
+// PURPOSE:
+// Orchestrates all dashboard functionality including:
+// - Loading external API data (weather, jokes)
+// - Managing UI state and widgets
+// - Displaying cached and real-time data
+// - Handling user interactions (refresh buttons, search, filters)
+//
+// API INTEGRATION FLOW:
+// 1. Constructor: Verify dependencies (config.js, api-client.js)
+// 2. Initialize: Setup event listeners, load initial data
+// 3. Load Data: Call apiClient methods (getWeather, getAllJokes, etc.)
+// 4. Display: Render API responses in HTML widgets
+// 5. Refresh: Update data on intervals and user actions
+//
+// KEY DEPENDENCIES:
+// - appConfig: Global configuration object from config.js
+// - UnifiedApiClient: API communication class from api-client.js
+// - CourseCatalog: Local course data management
+
 class CampusDashboard {
-constructor() {
-try {
-// Verify dependencies are loaded
-if (typeof appConfig === 'undefined') {
-throw new Error('appConfig is not defined. Check that config.js loaded correctly.');
-}
-if (typeof UnifiedApiClient === 'undefined') {
-throw new Error('UnifiedApiClient is not defined. Check that api-client.js loaded correctly.');
-}
-this.config = appConfig;
-this.apiClient = null; // Initialize lazily
-this.courseCatalog = null;
-this.widgets = new Map();
-this.refreshTimers = new Map();
-this.lastUpdated = new Map();
-console.log('Dashboard constructor completed successfully');
-this.initialize();
-} catch (error) {
-console.error('Dashboard constructor error:', error);
-this.handleInitializationError(error);
-}
-}
-getApiClient() {
-if (!this.apiClient) {
-try {
-this.apiClient = new UnifiedApiClient(this.config);
-} catch (error) {
-console.error('Failed to create API client:', error);
-throw error;
-}
-}
-return this.apiClient;
-}
+  constructor() {
+    // CONSTRUCTOR: Dependency Validation and Initialization
+    // 
+    // RESPONSIBILITY: Ensure all required components are loaded before dashboard runs
+    // This prevents cryptic errors like "Cannot read properties of undefined"
+    //
+    // THREE CRITICAL DEPENDENCIES CHECKED:
+    // 1. appConfig - Global config from config.js
+    // 2. UnifiedApiClient - API client class from api-client.js
+    // 3. Proper error handling if dependencies missing
+
+    try {
+      // Verify dependencies are loaded
+      if (typeof appConfig === 'undefined') {
+        throw new Error('appConfig is not defined. Check that config.js loaded correctly.');
+      }
+      if (typeof UnifiedApiClient === 'undefined') {
+        throw new Error('UnifiedApiClient is not defined. Check that api-client.js loaded correctly.');
+      }
+      
+      // Store configuration reference
+      this.config = appConfig;
+      
+      // Lazy-initialize API client (created on first use in getApiClient())
+      this.apiClient = null;
+      
+      // Local course catalog management
+      this.courseCatalog = null;
+      
+      // Widget management (track active widgets)
+      this.widgets = new Map();
+      
+      // Timer tracking for auto-refresh
+      this.refreshTimers = new Map();
+      
+      // Last update timestamp tracking (for "Updated X minutes ago" displays)
+      this.lastUpdated = new Map();
+      
+      console.log('Dashboard constructor completed successfully');
+      this.initialize();
+    } catch (error) {
+      console.error('Dashboard constructor error:', error);
+      this.handleInitializationError(error);
+    }
+  }
+  
+  getApiClient() {
+    // API CLIENT LAZY INITIALIZATION
+    // Creates unified API client on first use instead of in constructor
+    // Ensures appConfig is fully initialized before creating client
+    //
+    // WHY LAZY INIT:
+    // - Config async initialization might still be pending in constructor
+    // - Reduces startup time if some features don't need API client
+    // - If API client creation fails, error is caught at usage time
+    
+    if (!this.apiClient) {
+      try {
+        this.apiClient = new UnifiedApiClient(this.config);
+      } catch (error) {
+        console.error('Failed to create API client:', error);
+        throw error;
+      }
+    }
+    return this.apiClient;
+  }
 setupEventListeners() {
 console.log('[setupEventListeners] Setting up event listeners...');
 const courseSearchInput = document.getElementById('courseSearch');
@@ -126,22 +179,82 @@ container.innerHTML = courses.map(course => `
 `).join('');
 }
 async initialize() {
-try {
-const loader = document.getElementById('loading-indicator');
-if (loader) loader.style.display = 'block';
-console.log('Initializing dashboard...');
-this.setupEventListeners();
-this.createDashboardLayout();
-this.initializeApiKeySetup();
-await this.loadInitialData();
-this.startAutoRefresh();
-this.showWelcomeMessage();
-if (loader) loader.style.display = 'none';
-} catch (error) {
-console.error('Initialization error:', error);
-this.handleInitializationError(error);
-}
-}
+    // DASHBOARD INITIALIZATION SEQUENCE
+    // Runs on page load to set up all dashboard functionality
+    // 
+    // INITIALIZATION ORDER (IMPORTANT):
+    // 1. Show loading indicator
+    // 2. Setup event listeners (before data load)
+    // 3. Load initial data from APIs
+    // 4. Start auto-refresh timers
+    // 5. Hide loading indicator
+    // 
+    // WHY THIS ORDER:
+    // - Event listeners must be ready before user interacts
+    // - Data loads after UI ready
+    // - Timers start only after initial load completes
+    
+    try {
+      const loader = document.getElementById('loading-indicator');
+      if (loader) loader.style.display = 'block';
+      
+      console.log('Initializing dashboard...');
+      this.setupEventListeners();
+      this.createDashboardLayout();
+      this.initializeApiKeySetup();
+      
+      // Load all initial data (weather, jokes, courses)
+      // This calls getWeather(), getAllJokes() through API client
+      await this.loadInitialData();
+      
+      // Start automatic refresh timers for weather and time displays
+      this.startAutoRefresh();
+      this.showWelcomeMessage();
+      
+      if (loader) loader.style.display = 'none';
+    } catch (error) {
+      console.error('Initialization error:', error);
+      this.handleInitializationError(error);
+    }
+  }
+
+  async loadInitialData() {
+    // INITIAL DATA LOADING
+    // Loads all dashboard data on startup
+    // 
+    // LOADS:
+    // 1. Course data (local, from CourseCatalog)
+    // 2. Weather data (from OpenWeather API via proxy)
+    // 3. Humor data (from RapidAPI and JokeAPI via proxy)
+    // 4. Dashboard statistics (aggregated from loaded data)
+    //
+    // ERROR HANDLING:
+    // - If any data load fails, shows error message
+    // - Finally block hides loading indicator regardless
+    // - Dashboard remains functional with whatever loaded
+    
+    this.showLoadingState();
+    try {
+      // Load course data (from previous assignment)
+      await this.loadCourseData();
+      
+      // Load weather data from OpenWeather API
+      // apiClient.getWeather() calls proxy with service='openWeather'
+      await this.loadWeatherData();
+      
+      // Load jokes from both RapidAPI and JokeAPI
+      // apiClient.getAllJokes() calls both services via proxy
+      await this.loadHumorData();
+      
+      // Update dashboard statistics (total courses, students, etc.)
+      this.updateDashboardStats();
+    } catch (error) {
+      console.error('Failed to load initial data:', error);
+      this.showErrorState('Failed to load dashboard data');
+    } finally {
+      this.hideLoadingState();
+    }
+  }
 initializeApiKeySetup() {
   // API keys are now managed server-side by the proxy
   // No need to prompt user or check localStorage
@@ -257,123 +370,225 @@ humorContainer.innerHTML = `
 }
 }
 async loadWeatherData() {
-try {
-console.log('[loadWeatherData] Starting...');
-const apiClient = this.getApiClient();
-console.log('[loadWeatherData] Got API client');
-const weatherData = await apiClient.getWeather();
-console.log('[loadWeatherData] Got weather data:', weatherData);
-this.displayWeatherWidget(weatherData);
-this.lastUpdated.set('weather', Date.now());
-console.log('[loadWeatherData] Completed successfully');
-} catch (error) {
-console.error('[loadWeatherData] Error details:', { message: error?.message, stack: error?.stack });
-this.displayWeatherError();
-}
-}
-async loadHumorData() {
-try {
-console.log('[loadHumorData] Starting...');
-const apiClient = this.getApiClient();
-console.log('[loadHumorData] Got API client');
-const jokes = await apiClient.getAllJokes();
-console.log('[loadHumorData] Got jokes data:', jokes);
-this.displayHumorWidget(jokes);
-this.lastUpdated.set('humor', Date.now());
-console.log('[loadHumorData] Completed successfully');
-} catch (error) {
-console.error('[loadHumorData] Error details:', { message: error?.message, stack: error?.stack });
-this.displayHumorError();
-}
-}
+    // WEATHER DATA LOADING
+    // Fetches current weather from OpenWeather API via proxy
+    //
+    // REQUEST FLOW:
+    // 1. Get API client instance
+    // 2. Call apiClient.getWeather() with default city 'Kahului'
+    // 3. API client sends request to proxy with service='openWeather'
+    // 4. Proxy injects OpenWeather API key (from .env) as appid parameter
+    // 5. Proxy forwards request to api.openweathermap.org
+    // 6. Response cached by API client (10-minute TTL)
+    // 7. Data passed to displayWeatherWidget() for rendering
+    //
+    // ERROR HANDLING:
+    // - Network errors caught by try/catch
+    // - Rate limit exceeded: shown via error message in UI
+    // - API key missing: proxy returns 401, handled gracefully
+    // - Fallback data displayed if any error occurs
+
+    try {
+      console.log('[loadWeatherData] Starting...');
+      const apiClient = this.getApiClient();
+      console.log('[loadWeatherData] Got API client');
+      
+      // Call apiClient.getWeather('Kahului')
+      // Behind the scenes: apiClient.makeRequest('openWeather', '/weather', ...)
+      const weatherData = await apiClient.getWeather();
+      console.log('[loadWeatherData] Got weather data:', weatherData);
+      
+      this.displayWeatherWidget(weatherData);
+      this.lastUpdated.set('weather', Date.now());
+      console.log('[loadWeatherData] Completed successfully');
+    } catch (error) {
+      console.error('[loadWeatherData] Error details:', { message: error?.message, stack: error?.stack });
+      this.displayWeatherError();
+    }
+  }
+
+  async loadHumorData() {
+    // HUMOR DATA LOADING
+    // Fetches jokes from both RapidAPI (Chuck Norris) and JokeAPI (Programming)
+    //
+    // REQUEST FLOW:
+    // 1. Get API client instance
+    // 2. Call apiClient.getAllJokes()
+    // 3. This makes TWO parallel API calls:
+    //    a. apiClient.getChuckNorrisJoke() - goes to RapidAPI via proxy
+    //       - Proxy injects X-RapidAPI-Key and X-RapidAPI-Host headers
+    //    b. apiClient.getProgrammingJoke() - goes to JokeAPI via proxy
+    //       - JokeAPI is public, proxy doesn't need to inject keys
+    // 4. Both responses combined into single jokes object
+    // 5. Data passed to displayHumorWidget() for rendering
+    //
+    // ERROR HANDLING:
+    // - Individual service failures don't block entire request
+    // - If RapidAPI fails, Chuck joke shows fallback data
+    // - If JokeAPI fails, Programming joke shows fallback data
+    // - displayHumorWidget() handles all fallback cases
+
+    try {
+      console.log('[loadHumorData] Starting...');
+      const apiClient = this.getApiClient();
+      console.log('[loadHumorData] Got API client');
+      
+      // apiClient.getAllJokes() returns { chuck: {...}, programming: {...} }
+      const jokes = await apiClient.getAllJokes();
+      console.log('[loadHumorData] Got jokes data:', jokes);
+      
+      this.displayHumorWidget(jokes);
+      this.lastUpdated.set('humor', Date.now());
+      console.log('[loadHumorData] Completed successfully');
+    } catch (error) {
+      console.error('[loadHumorData] Error details:', { message: error?.message, stack: error?.stack });
+      this.displayHumorError();
+    }
+  }
 displayWeatherWidget(data) {
-const weatherContainer = document.getElementById('weather-widget');
-if (!weatherContainer) {
-console.error('[displayWeatherWidget] Container element not found');
-return;
-}
-const isError = data.error;
-weatherContainer.innerHTML =
-'<div class="widget-header">' +
-'<h3>Campus Weather</h3>' +
-'<span class="last-updated">' + this.getTimeAgo('weather') + '</span>' +
-'</div>' +
-'<div class="weather-content ' + (isError ? 'error-state' : '') + '">' +
-'<div class="location">' + data.name + '</div>' +
-'<div class="temperature">' + Math.round(data.main.temp) + '°F</div>' +
-'<div class="description">' + data.weather[0].description + '</div>' +
-'<div class="details">' +
-'<span>Humidity: ' + data.main.humidity + '%</span>' +
-'<span>Wind: ' + data.wind.speed + ' mph</span>' +
-'</div>' +
-(isError ? '<div class="error-message">' + data.message + '</div>' : '') +
-'</div>';
-}
-displayHumorWidget(jokes) {
-const humorContainer = document.getElementById('humor-widget');
-if (!humorContainer) {
-console.error('[displayHumorWidget] Container element not found');
-return;
-}
-console.log('[displayHumorWidget] Jokes data received:', jokes);
-// Handle Chuck Norris joke
-let chuckJoke = 'Chuck Norris joke unavailable';
-if (jokes && jokes.chuck) {
-console.log('[displayHumorWidget] Chuck object:', jokes.chuck);
-console.log('[displayHumorWidget] Chuck keys:', Object.keys(jokes.chuck));
-console.log('[displayHumorWidget] Chuck.value exists?', 'value' in jokes.chuck);
-console.log('[displayHumorWidget] Chuck.value:', jokes.chuck.value);
-console.log('[displayHumorWidget] Chuck.joke:', jokes.chuck.joke);
-console.log('[displayHumorWidget] Chuck.message:', jokes.chuck.message);
-if (typeof jokes.chuck === 'string') {
-chuckJoke = jokes.chuck;
-} else if (jokes.chuck.value) {
-chuckJoke = jokes.chuck.value;
-console.log('[displayHumorWidget] Used .value');
-} else if (jokes.chuck.joke) {
-chuckJoke = jokes.chuck.joke;
-console.log('[displayHumorWidget] Used .joke');
-} else if (jokes.chuck.message) {
-chuckJoke = jokes.chuck.message;
-console.log('[displayHumorWidget] Used .message');
-} else {
-// Fallback: try to get any text-like property
-chuckJoke = JSON.stringify(jokes.chuck).substring(0, 100);
-console.warn('[displayHumorWidget] No recognizable joke field in Chuck response:', jokes.chuck);
-}
-}
-console.log('[displayHumorWidget] Final Chuck joke:', chuckJoke);
-// Handle Programming joke
-let progJoke = 'Programming joke unavailable';
-if (jokes && jokes.programming) {
-console.log('[displayHumorWidget] Programming object:', jokes.programming);
-if (typeof jokes.programming === 'string') {
-progJoke = jokes.programming;
-} else if (jokes.programming.joke) {
-progJoke = jokes.programming.joke;
-} else if (jokes.programming.setup && jokes.programming.delivery) {
-progJoke = jokes.programming.setup + ' ' + jokes.programming.delivery;
-} else if (jokes.programming.message) {
-progJoke = jokes.programming.message;
-}
-}
-console.log('[displayHumorWidget] Final Programming joke:', progJoke);
-humorContainer.innerHTML =
-'<div class="widget-header">' +
-'<h3>Campus Humor</h3>' +
-'<button class="refresh-btn" onclick="if(window.dashboard) window.dashboard.refreshHumor(); else alert(\'Dashboard not ready\');">New Jokes</button>' +
-'</div>' +
-'<div class="humor-content">' +
-'<div class="joke-section">' +
-'<h4>Chuck Norris Fact</h4>' +
-'<p class="joke-text">' + chuckJoke + '</p>' +
-'</div>' +
-'<div class="joke-section">' +
-'<h4>Programming Humor</h4>' +
-'<p class="joke-text">' + progJoke + '</p>' +
-'</div>' +
-'</div>';
-}
+    // RENDER WEATHER DATA TO UI
+    // Takes API response and creates HTML widget
+    //
+    // EXPECTED DATA STRUCTURE (from OpenWeather API):
+    // {
+    //   name: "Kahului",
+    //   main: { temp: 78, humidity: 65 },
+    //   weather: [{ description: "partly cloudy", icon: "02d" }],
+    //   wind: { speed: 12 },
+    //   error: false (optional, set by error handler)
+    // }
+    //
+    // STYLING:
+    // - Normal data: renders in weather-content
+    // - Error data: adds 'error-state' CSS class for red styling
+    // - Shows last update time ("Updated 5 minutes ago")
+    // - Shows temperature, description, humidity, wind speed
+    //
+    // ERROR HANDLING:
+    // - If data.error === true, shows error message instead of normal display
+    // - data.message contains human-readable error text
+    
+    const weatherContainer = document.getElementById('weather-widget');
+    if (!weatherContainer) {
+      console.error('[displayWeatherWidget] Container element not found');
+      return;
+    }
+
+    const isError = data.error;
+    weatherContainer.innerHTML =
+      '<div class="widget-header">' +
+      '<h3>Campus Weather</h3>' +
+      '<span class="last-updated">' + this.getTimeAgo('weather') + '</span>' +
+      '</div>' +
+      '<div class="weather-content ' + (isError ? 'error-state' : '') + '">' +
+      '<div class="location">' + data.name + '</div>' +
+      '<div class="temperature">' + Math.round(data.main.temp) + '°F</div>' +
+      '<div class="description">' + data.weather[0].description + '</div>' +
+      '<div class="details">' +
+      '<span>Humidity: ' + data.main.humidity + '%</span>' +
+      '<span>Wind: ' + data.wind.speed + ' mph</span>' +
+      '</div>' +
+      (isError ? '<div class="error-message">' + data.message + '</div>' : '') +
+      '</div>';
+  }
+
+  displayHumorWidget(jokes) {
+    // RENDER HUMOR DATA TO UI
+    // Displays jokes from two different APIs in single widget
+    //
+    // EXPECTED DATA STRUCTURE (from getAllJokes()):
+    // {
+    //   chuck: { value: "joke text", error: false },
+    //   programming: { joke: "joke text" or setup/delivery, error: false }
+    // }
+    //
+    // COMPLEXITY:
+    // - Chuck Norris API returns .value field
+    // - Programming joke API returns .joke field
+    // - Some responses are strings, some are objects
+    // - Error handler provides fallback data with same structure
+    //
+    // FALLBACK HANDLING:
+    // - If chuck is undefined: shows "Chuck Norris joke unavailable"
+    // - If programming is undefined: shows "Programming joke unavailable"
+    // - Handles mixed string/object responses gracefully
+    //
+    // USER INTERACTION:
+    // - "New Jokes" button calls dashboard.refreshHumor()
+    // - Button shows loading state during API call
+
+    const humorContainer = document.getElementById('humor-widget');
+    if (!humorContainer) {
+      console.error('[displayHumorWidget] Container element not found');
+      return;
+    }
+
+    console.log('[displayHumorWidget] Jokes data received:', jokes);
+
+    // Extract Chuck Norris joke
+    let chuckJoke = 'Chuck Norris joke unavailable';
+    if (jokes && jokes.chuck) {
+      console.log('[displayHumorWidget] Chuck object:', jokes.chuck);
+      console.log('[displayHumorWidget] Chuck keys:', Object.keys(jokes.chuck));
+      console.log('[displayHumorWidget] Chuck.value exists?', 'value' in jokes.chuck);
+      console.log('[displayHumorWidget] Chuck.value:', jokes.chuck.value);
+      console.log('[displayHumorWidget] Chuck.joke:', jokes.chuck.joke);
+      console.log('[displayHumorWidget] Chuck.message:', jokes.chuck.message);
+
+      // Try different response formats
+      if (typeof jokes.chuck === 'string') {
+        chuckJoke = jokes.chuck;
+      } else if (jokes.chuck.value) {
+        chuckJoke = jokes.chuck.value;
+        console.log('[displayHumorWidget] Used .value');
+      } else if (jokes.chuck.joke) {
+        chuckJoke = jokes.chuck.joke;
+        console.log('[displayHumorWidget] Used .joke');
+      } else if (jokes.chuck.message) {
+        chuckJoke = jokes.chuck.message;
+        console.log('[displayHumorWidget] Used .message');
+      } else {
+        // Fallback: try to get any text-like property
+        chuckJoke = JSON.stringify(jokes.chuck).substring(0, 100);
+        console.warn('[displayHumorWidget] No recognizable joke field in Chuck response:', jokes.chuck);
+      }
+    }
+    console.log('[displayHumorWidget] Final Chuck joke:', chuckJoke);
+
+    // Extract Programming joke
+    let progJoke = 'Programming joke unavailable';
+    if (jokes && jokes.programming) {
+      console.log('[displayHumorWidget] Programming object:', jokes.programming);
+      
+      // Programming API sometimes returns .joke, sometimes setup/delivery
+      if (typeof jokes.programming === 'string') {
+        progJoke = jokes.programming;
+      } else if (jokes.programming.joke) {
+        progJoke = jokes.programming.joke;
+      } else if (jokes.programming.setup && jokes.programming.delivery) {
+        progJoke = jokes.programming.setup + ' ' + jokes.programming.delivery;
+      } else if (jokes.programming.message) {
+        progJoke = jokes.programming.message;
+      }
+    }
+    console.log('[displayHumorWidget] Final Programming joke:', progJoke);
+
+    humorContainer.innerHTML =
+      '<div class="widget-header">' +
+      '<h3>Campus Humor</h3>' +
+      '<button class="refresh-btn" onclick="if(window.dashboard) window.dashboard.refreshHumor(); else alert(\'Dashboard not ready\');">New Jokes</button>' +
+      '</div>' +
+      '<div class="humor-content">' +
+      '<div class="joke-section">' +
+      '<h4>Chuck Norris Fact</h4>' +
+      '<p class="joke-text">' + chuckJoke + '</p>' +
+      '</div>' +
+      '<div class="joke-section">' +
+      '<h4>Programming Humor</h4>' +
+      '<p class="joke-text">' + progJoke + '</p>' +
+      '</div>' +
+      '</div>';
+  }
 updateDashboardStats() {
 if (!this.courseCatalog) return;
 const totalCourses = this.getAllCourses().length;
@@ -387,75 +602,145 @@ document.getElementById('avg-capacity').textContent = averageCapacity + '%';
 document.getElementById('api-status').textContent = weatherStatus;
 }
 startAutoRefresh() {
-// Refresh weather every 10 minutes
-this.refreshTimers.set('weather', setInterval(() => {
-this.loadWeatherData();
-}, 10 * 60 * 1000));
-// Update time displays every minute
-this.refreshTimers.set('time', setInterval(() => {
-this.updateTimeDisplays();
-}, 60 * 1000));
-}
-async refreshHumor() {
-console.log('refreshHumor called');
-try {
-const button = document.querySelector('.refresh-btn');
-if (button) {
-console.log('Found refresh button, showing loading state');
-button.textContent = 'Loading...';
-button.disabled = true;
-}
-console.log('About to call loadHumorData()');
-await this.loadHumorData();
-console.log('loadHumorData() completed successfully');
-if (button) {
-button.textContent = 'New Jokes';
-button.disabled = false;
-}
-} catch (error) {
-console.error('Error in refreshHumor:', error);
-const button = document.querySelector('.refresh-btn');
-if (button) {
-button.textContent = 'New Jokes';
-button.disabled = false;
-}
-}
-}
-async refreshWeather() {
-console.log('refreshWeather called');
-try {
-console.log('About to call loadWeatherData()');
-await this.loadWeatherData();
-console.log('loadWeatherData() completed');
-} catch (error) {
-console.error('Error in refreshWeather:', error);
-}
-}
-async refreshAll() {
-console.log('refreshAll called');
-try {
-const refreshBtn = document.getElementById('refreshAllBtn');
-if (refreshBtn) {
-refreshBtn.textContent = 'Refreshing...';
-}
-console.log('About to refresh weather and humor...');
-await this.loadWeatherData();
-console.log('Weather loaded');
-await this.loadHumorData();
-console.log('Humor loaded');
-this.updateDashboardStats();
-if (refreshBtn) {
-refreshBtn.textContent = 'Refresh All';
-}
-console.log('refreshAll completed successfully');
-} catch (error) {
-console.error('Error in refreshAll:', error);
-const refreshBtn = document.getElementById('refreshAllBtn');
-if (refreshBtn) {
-refreshBtn.textContent = 'Refresh All';
-}
-}
-}
+    // AUTO-REFRESH TIMERS
+    // Automatically loads fresh data at regular intervals
+    //
+    // WHY AUTO-REFRESH:
+    // - Weather data becomes stale quickly
+    // - Provides real-time data without user intervention
+    // - Reduces stale data issues
+    //
+    // TIMERS SET:
+    // 1. Weather: Refreshes every 10 minutes
+    //    - Calls loadWeatherData() which queries OpenWeather API via proxy
+    // 2. Time display: Updates every 1 minute
+    //    - Refreshes "Last updated X minutes ago" text
+    //
+    // HOW IT WORKS:
+    // - First call happens immediately on initialize()
+    // - Subsequent calls happen on interval
+    // - Timers stored in this.refreshTimers Map for cleanup on destroy
+
+    // Refresh weather every 10 minutes
+    this.refreshTimers.set('weather', setInterval(() => {
+      this.loadWeatherData();
+    }, 10 * 60 * 1000));
+
+    // Update time displays every minute
+    this.refreshTimers.set('time', setInterval(() => {
+      this.updateTimeDisplays();
+    }, 60 * 1000));
+  }
+
+  async refreshHumor() {
+    // MANUAL HUMOR REFRESH
+    // User clicks "New Jokes" button to get fresh jokes
+    //
+    // UX FLOW:
+    // 1. User clicks "New Jokes" button
+    // 2. Button text changes to "Loading..."
+    // 3. Button disabled to prevent double-clicks
+    // 4. loadHumorData() called:
+    //    - Checks rate limits for both services
+    //    - May return cached data if within cache period
+    //    - Or fetches fresh data from RapidAPI/JokeAPI via proxy
+    // 5. displayHumorWidget() re-renders jokes
+    // 6. Button text reverts to "New Jokes"
+    // 7. Button re-enabled
+    //
+    // ERROR HANDLING:
+    // - If loadHumorData() throws error, button state still restored
+    // - Try/catch ensures button never stuck in "Loading..." state
+
+    console.log('refreshHumor called');
+    try {
+      const button = document.querySelector('.refresh-btn');
+      if (button) {
+        console.log('Found refresh button, showing loading state');
+        button.textContent = 'Loading...';
+        button.disabled = true;
+      }
+
+      console.log('About to call loadHumorData()');
+      await this.loadHumorData();
+      console.log('loadHumorData() completed successfully');
+
+      if (button) {
+        button.textContent = 'New Jokes';
+        button.disabled = false;
+      }
+    } catch (error) {
+      console.error('Error in refreshHumor:', error);
+      const button = document.querySelector('.refresh-btn');
+      if (button) {
+        button.textContent = 'New Jokes';
+        button.disabled = false;
+      }
+    }
+  }
+
+  async refreshWeather() {
+    // MANUAL WEATHER REFRESH
+    // User can manually trigger weather update
+    // (Called when user clicks weather widget refresh button)
+    //
+    // FLOW:
+    // 1. loadWeatherData() called
+    // 2. Same request flow as auto-refresh but triggered manually
+    // 3. May return cached data or fetch fresh data from OpenWeather
+    // 4. displayWeatherWidget() re-renders
+
+    console.log('refreshWeather called');
+    try {
+      console.log('About to call loadWeatherData()');
+      await this.loadWeatherData();
+      console.log('loadWeatherData() completed');
+    } catch (error) {
+      console.error('Error in refreshWeather:', error);
+    }
+  }
+
+  async refreshAll() {
+    // REFRESH ALL DATA
+    // User clicks "Refresh All" button to update everything at once
+    //
+    // FLOW:
+    // 1. Change button text to "Refreshing..."
+    // 2. Call loadWeatherData() - waits for completion
+    // 3. Call loadHumorData() - waits for completion
+    // 4. Update dashboard statistics
+    // 5. Restore button text to "Refresh All"
+    //
+    // NOTE: Both data loads are sequential (await each one)
+    // Could be optimized to parallel with Promise.all()
+    // But sequential is safer and clearer for maintenance
+
+    console.log('refreshAll called');
+    try {
+      const refreshBtn = document.getElementById('refreshAllBtn');
+      if (refreshBtn) {
+        refreshBtn.textContent = 'Refreshing...';
+      }
+
+      console.log('About to refresh weather and humor...');
+      await this.loadWeatherData();
+      console.log('Weather loaded');
+      await this.loadHumorData();
+      console.log('Humor loaded');
+      this.updateDashboardStats();
+
+      if (refreshBtn) {
+        refreshBtn.textContent = 'Refresh All';
+      }
+      console.log('refreshAll completed successfully');
+    } catch (error) {
+      console.error('Error in refreshAll:', error);
+      const refreshBtn = document.getElementById('refreshAllBtn');
+      if (refreshBtn) {
+        refreshBtn.textContent = 'Refresh All';
+      }
+    }
+  }
 updateTimeDisplays() {
 const weatherDisplay = document.querySelector('.last-updated');
 if (weatherDisplay) {
