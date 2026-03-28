@@ -3,3 +3,4 @@ ics385spring2026.code-workspace
 .vscode
 node_modules/
 .env
+mongodbcommands.txt

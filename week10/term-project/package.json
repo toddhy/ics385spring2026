@@ -1,0 +1,10 @@
+{
+  "name": "hawaii-tourism",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Hawaii Tourism Length of Stay Calculator",
+  "dependencies": {
+    "mongoose": "^7.0.0",
+    "dotenv": "^16.0.0"
+  }
+}

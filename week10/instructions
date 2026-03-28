@@ -1,0 +1,23 @@
+Hi Class, review the document that was given in week 10 for the Term 3 project. 
+
+Go through the overview and Sections 1-2 of the document in detail.
+
+Week 10 Deliverable
+
+Project Kickoff — Property Schema & Seed Data
+
+• Select your Hawaiian island and define your property (name, type, location, target visitor segment).
+
+• Create a Mongoose schema for your Property model with fields: name, island, type (hotel/vacation
+
+rental), description, amenities (array), targetSegment, and imageURL.
+
+(Note: Review Mongoose tourismDataSchema in https://github.com/debasisb/hawaii-tourism-los-calculator/tree/main/models)
+
+• Write a seed.js script that inserts at least 5 sample records into MongoDB.
+
+• Verify your connection using MongoDB Compass or Atlas; include a screenshot in your README.
+
+• Initialize your GitHub repo: week10/term-project/ with README.md, models/, seed.js, and .gitignore (exclude .env).
+
+• Deliverable: GitHub URL - week10/term-project/ with commit link + upload screenshot of MongoDB collection in Lamaku.
