@@ -12,8 +12,6 @@ const customerSchema = new mongoose.Schema({
 // Create the customer model
 const Customer = mongoose.model('Customer', customerSchema);
 
-module.exports = Customer;
-
 // Define the hotel schema
 const hotelSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -24,8 +22,6 @@ const hotelSchema = new mongoose.Schema({
 
 // Create the hotel model
 const Hotel = mongoose.model('Hotel', hotelSchema);
-
-module.exports = Hotel;
 
 // Define the amenities schema
 const amenitiesSchema = new mongoose.Schema({
@@ -39,4 +35,4 @@ const amenitiesSchema = new mongoose.Schema({
 // Create the amenities model
 const Amenities = mongoose.model('Amenities', amenitiesSchema);
 
-module.exports = Amenities;
+module.exports = { Customer, Hotel, Amenities };

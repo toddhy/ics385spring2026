@@ -1,7 +1,7 @@
 {
-  "name": "mongodb-mongoose-crud",
+  "name": "week13",
   "version": "1.0.0",
-  "description": "CRUD operations with Mongoose for Customer, Hotel, and Amenities",
+  "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -9,7 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "mongoose": "^7.0.3",
-    "dotenv": "^16.0.3"
+    "mongoose": "^7.0.3"
   }
 }
