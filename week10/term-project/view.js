@@ -14,6 +14,18 @@ try {
   // Get collection stats
   const stats = await Property.collection.stats();
   console.log(`\n📈 Collection Stats:`, stats);
+
+  // Define the customer schema
+  const customerSchema = new mongoose.Schema({
+    guestName: { type: String, required: true },
+    rating: { type: Number, required: true },
+    comment: { type: String, required: false },
+    date: { type: String, required: true },
+    // Add any other fields as needed
+  });
+  
+  // Create the customer model
+  const Customer = mongoose.model('Customer', customerSchema);
   
   await mongoose.disconnect();
 } catch (error) {
