@@ -2,11 +2,13 @@ import express from 'express';
 import mongoose from 'mongoose';
 import 'dotenv/config';
 import Property from './models/Property.js';
+import cors from 'cors';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
+app.use(cors()); // Enable CORS for all routes
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');

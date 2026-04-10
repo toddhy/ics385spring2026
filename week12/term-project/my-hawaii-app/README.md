@@ -1,16 +1,36 @@
-# React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Week 12**
+Transitioning from EJS to React jsx. Still using Express and MongoDB servers that were set up in week 11. The express backend server runs on port 3000, react frontend runs 5173 with vite. The two communicate through fetch() calls to the API. Page displays property details, name, island, description, amenities, reviews and ratings.
 
-Currently, two official plugins are available:
+To run server:
+```
+cd week11/term-project
+npm start
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+cd week12/term-project/my-hawaii-app
+npm run dev
+```
+---
+**Week 11**
 
-## React Compiler
+Express server implemented in server.js. It contains routes:
+GET /properties
+GET /properties/:id
+POST /properties/:id/reviews
+GET /api/properties
+GET /api/properties/:id
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Mongoose schema created for user rating of properties. It has the fields guestName, rating, comment, date. 
+Mongoose query operators to filter properties by rating. 
+EJS templates in the views/ folder.
 
-## Expanding the ESLint configuration
+---
+**Week 10**
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+I chose a vacation rental in Pukalani targetting Honeymooners as my property for the project.
+
+A MongoDB schema for the project is in models/Proerty.js
+A script inserting 5 sample properties is in scripts/seed.js
+This uses a .env file to point to a database to inject into.
+
+---

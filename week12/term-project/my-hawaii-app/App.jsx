@@ -36,27 +36,22 @@ export default function App() {
   useEffect(() => {
     const fetchProperty = async () => {
       try {
-        console.log('Fetching from http://localhost:3000/api/properties');
         // Attempt to fetch from Express server
+        // Using /api/properties/:id - you may need to replace 'fallback-1' with an actual MongoDB ObjectId
         const response = await fetch('http://localhost:3000/api/properties');
         
-        console.log('Response status:', response.status);
-        
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          throw new Error('Failed to fetch property');
         }
         
         const properties = await response.json();
-        console.log('Fetched properties:', properties);
         
         // Use the first property if available
         if (properties.length > 0) {
           setProperty(properties[0]);
-          console.log('Set property from server:', properties[0].name);
         } else {
           // No properties in database, use fallback
           setProperty(fallbackProperty);
-          console.log('No properties found, using fallback');
         }
         
         setError(null);
@@ -88,6 +83,7 @@ export default function App() {
 
   return (
     <div className="container">
+      {error && <p className="error-notice">{error}</p>}
       
       <div className="property-card">
         {/* Property Image */}
@@ -96,7 +92,7 @@ export default function App() {
             src={property.imageURL} 
             alt={property.name}
             onError={(e) => {
-              e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="600" height="400"%3E%3Crect fill="%23ddd" width="600" height="400"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23999" font-size="24" font-family="sans-serif"%3EImage Not Available%3C/text%3E%3C/svg%3E';
+              e.target.src = 'https://via.placeholder.com/600x400?text=No+Image';
             }}
           />
         </div>
