@@ -3,6 +3,8 @@
 
 Transitioning from EJS to React jsx. Still using Express and MongoDB servers that were set up in week 11. The express backend server runs on port 3000, react frontend runs 5173 with vite. The two communicate through fetch() calls to the API. Page displays property details, name, island, description, amenities, reviews and ratings.
 
+Sections of page have been created as components in src/components directory. They consist of Header, Hero Section, About, Amenities, CTA, and Footer. Each one has an accompanying .css file for it. 
+
 To run server:
 ```
 cd week11/term-project

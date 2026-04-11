@@ -1,158 +1,54 @@
-import { useState, useEffect } from 'react';
 import './App.css';
+import Header from './components/Header';
+import HeroSection from './components/HeroSection';
+import AboutSection from './components/AboutSection';
+import AmenitiesSection from './components/AmenitiesSection';
+import CTASection from './components/CTASection';
+import Footer from './components/Footer';
 
 export default function App() {
-  const [property, setProperty] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  // Hardcoded fallback property data
-  const fallbackProperty = {
-    _id: 'fallback-1',
-    name: 'Kauai Beach Resort',
-    island: 'Kauai',
-    type: 'Resort',
-    description: 'Beautiful beachfront resort with pristine sandy shores and crystal clear waters.',
-    year: '2020',
-    amenities: ['Pool', 'Spa', 'Restaurant', 'Beach Access', 'WiFi'],
-    targetSegment: 'Luxury Vacationers',
-    imageURL: 'https://images.unsplash.com/photo-1542259009477-d625272157b7?w=600&h=400&fit=crop',
-    reviews: [
-      {
-        guestName: 'Sarah Johnson',
-        rating: 5,
-        comment: 'Absolutely stunning views and excellent service!',
-        date: new Date('2024-01-15')
-      },
-      {
-        guestName: 'Michael Chen',
-        rating: 4,
-        comment: 'Great location but a bit pricey.',
-        date: new Date('2024-02-20')
-      }
-    ]
+  // Hardcoded property data
+  const property = {
+    name: 'Upcountry Honeymoon Getaway',
+    island: 'Maui',
+    tagline: 'Your romantic escape on the Valley Isle.',
+    description: 'Nestled on the slopes of Haleakala on Maui, Upcountry Honeymoon Getaway offers the perfect blend of luxury and natural beauty. Our vacation rental is designed for couples and families seeking an unforgettable Hawaiian getaway with world-class amenities and personalized service.',
+    year: '2026',
+    targetSegment: 'Luxury Vacationers & Honeymooners',
+    imageURL: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&h=600&fit=crop',
+    amenities: [
+      'Lanai with view of the valley and ocean',
+      'Private Pool Ocean Views',
+      'WiFi & Work Lounge'
+    ],
+    contactEmail: 'reservations@upcountrygetaway.com'
   };
 
-  useEffect(() => {
-    const fetchProperty = async () => {
-      try {
-        console.log('Fetching from http://localhost:3000/api/properties');
-        // Attempt to fetch from Express server
-        const response = await fetch('http://localhost:3000/api/properties');
-        
-        console.log('Response status:', response.status);
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const properties = await response.json();
-        console.log('Fetched properties:', properties);
-        
-        // Use the first property if available
-        if (properties.length > 0) {
-          setProperty(properties[0]);
-          console.log('Set property from server:', properties[0].name);
-        } else {
-          // No properties in database, use fallback
-          setProperty(fallbackProperty);
-          console.log('No properties found, using fallback');
-        }
-        
-        setError(null);
-      } catch (err) {
-        console.error('Error fetching property:', err);
-        // If server is not running or request fails, use hardcoded fallback data
-        setProperty(fallbackProperty);
-        setError('Using cached data - Express server not running');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProperty();
-  }, []);
-
-  if (loading) {
-    return <div className="container"><p>Loading property...</p></div>;
-  }
-
-  if (!property) {
-    return <div className="container"><p>No property data available</p></div>;
-  }
-
-  // Calculate average rating
-  const averageRating = property.reviews && property.reviews.length > 0
-    ? (property.reviews.reduce((sum, review) => sum + review.rating, 0) / property.reviews.length).toFixed(1)
-    : 'N/A';
 
   return (
-    <div className="container">
+    <div className="app">
+      <Header />
       
-      <div className="property-card">
-        {/* Property Image */}
-        <div className="property-image">
-          <img 
-            src={property.imageURL} 
-            alt={property.name}
-            onError={(e) => {
-              e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="600" height="400"%3E%3Crect fill="%23ddd" width="600" height="400"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" dy=".3em" fill="%23999" font-size="24" font-family="sans-serif"%3EImage Not Available%3C/text%3E%3C/svg%3E';
-            }}
-          />
-        </div>
-
-        {/* Property Header */}
-        <div className="property-header">
-          <h1>{property.name}</h1>
-          <p className="location">
-            <span>📍</span> {property.island}
-          </p>
-          <p className="type">{property.type}</p>
-        </div>
-
-        {/* Property Details */}
-        <div className="property-details">
-          <p className="description">{property.description}</p>
-          
-          {property.year && <p><strong>Established:</strong> {property.year}</p>}
-          <p><strong>Target Segment:</strong> {property.targetSegment}</p>
-        </div>
-
-        {/* Amenities */}
-        <div className="amenities-section">
-          <h3>Amenities</h3>
-          <ul className="amenities-list">
-            {property.amenities && property.amenities.map((amenity, idx) => (
-              <li key={idx}>✓ {amenity}</li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Reviews Section */}
-        <div className="reviews-section">
-          <h3>Guest Reviews</h3>
-          <p className="average-rating">Average Rating: ⭐ {averageRating}/5</p>
-          
-          <div className="reviews-list">
-            {property.reviews && property.reviews.map((review, idx) => (
-              <div key={idx} className="review">
-                <div className="review-header">
-                  <p className="guest-name"><strong>{review.guestName}</strong></p>
-                  <p className="rating">{'⭐'.repeat(review.rating)}</p>
-                </div>
-                <p className="comment">{review.comment}</p>
-                <p className="date">
-                  {new Date(review.date).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric'
-                  })}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      <main className="main-content">
+        <HeroSection 
+          name={property.name}
+          island={property.island}
+          tagline={property.tagline}
+          imageURL={property.imageURL}
+        />
+        
+        <AboutSection 
+          description={property.description}
+          year={property.year}
+          targetSegment={property.targetSegment}
+        />
+        
+        <AmenitiesSection amenities={property.amenities} />
+        
+        <CTASection email={property.contactEmail} />
+      </main>
+      
+      <Footer />
     </div>
   );
 }
