@@ -1,0 +1,181 @@
+UPCOUNTRY HONEYMOON GETAWAY - COMPONENT HIERARCHY TEMPLATE
+Week 13 Extensions with React Router
+
+=============================================================================
+COMPONENT TREE (React Router Approach)
+=============================================================================
+
+App.jsx (root)
+├── NavigationBar (visible on all pages)
+├── Routes
+│   ├── Route path="/" 
+│   │   └── MarketingPage
+│   │       ├── Header
+│   │       ├── Hero Section
+│   │       │   └── WeatherWidget (NEW - top-right corner)
+│   │       │       └── Data Source: OpenWeatherMap API (external)
+│   │       ├── Details (About)
+│   │       ├── Amenities
+│   │       ├── Reviews
+│   │       │   ├── ReviewText
+│   │       │   └── Rating
+│   │       └── Calendar
+│   │
+│   ├── Route path="/dashboard" 
+│   │   └── ProtectedRoute (requires admin authentication)
+│   │       └── DashboardPage (NEW)
+│   │           └── VisitorStatsDashboard (NEW parent container)
+│   │               ├── ArrivalsChart (Chart.js)
+│   │               │   └── Data: Visitor arrivals by month
+│   │               │   └── Data Source: MongoDB aggregation via /api/arrivals
+│   │               ├── OriginChart (Chart.js)
+│   │               │   └── Data: Place of origin (pie or bar chart)
+│   │               │   └── Data Source: MongoDB aggregation via /api/origins
+│   │               ├── OccupancyMetric (card component)
+│   │               │   └── Data: Average occupancy rate (%)
+│   │               │   └── Data Source: MongoDB calculation via /api/occupancy
+│   │               └── SpendingMetric (card component)
+│   │                   └── Data: Average spending ($)
+│   │                   └── Data Source: MongoDB aggregation via /api/spending
+│   │
+│   └── Route path="/admin"
+│       └── AdminAuthPage (login form)
+
+
+=============================================================================
+DATA FLOW
+=============================================================================
+
+MARKETING PAGE (Public):
+  MarketingPage fetches weather data
+  └─> WeatherWidget
+      └─> Calls: fetch('https://api.openweathermap.org/...')
+          Returns: {temp, description, humidity, forecast}
+
+DASHBOARD PAGE (Admin-only):
+  DashboardPage → VisitorStatsDashboard fetches all stats in one call or separate calls
+  ├─> ArrivalsChart
+  │   └─> Calls: fetch('/api/arrivals')
+  │       Returns: [{month, count}, {month, count}, ...]
+  ├─> OriginChart
+  │   └─> Calls: fetch('/api/origins')
+  │       Returns: [{location, count}, {location, count}, ...]
+  ├─> OccupancyMetric
+  │   └─> Calls: fetch('/api/occupancy')
+  │       Returns: {avgOccupancy: 75.5}
+  └─> SpendingMetric
+      └─> Calls: fetch('/api/spending')
+          Returns: {avgSpending: 2450.00}
+
+
+=============================================================================
+AUTHENTICATION & ROUTE PROTECTION
+=============================================================================
+
+ProtectedRoute Component:
+  - Checks if user authentication token exists (localStorage or context)
+  - If authenticated AND is admin: render <DashboardPage />
+  - If not authenticated: redirect to /admin (login page)
+  - AdminAuthPage: Login form that sets auth token on success and redirects to /dashboard
+
+
+=============================================================================
+NEW COMPONENTS SUMMARY
+=============================================================================
+
+1. WeatherWidget
+   - Parent: Hero (MarketingPage)
+   - Purpose: Display real-time weather for property location (Pukalani, Maui)
+   - Data Source: External API (OpenWeatherMap)
+   - Visibility: Public-facing
+   - Why: Helps prospective visitors understand weather conditions before booking
+
+2. DashboardPage
+   - Route: /dashboard
+   - Purpose: Admin-only analytics and reporting
+   - Protection: ProtectedRoute wrapper
+   - Contains: VisitorStatsDashboard component
+   - Why: Separates sensitive business metrics from public marketing page
+
+3. VisitorStatsDashboard
+   - Parent: DashboardPage
+   - Purpose: Container for all admin analytics
+   - Contains: ArrivalsChart, OriginChart, OccupancyMetric, SpendingMetric
+   - Data Source: MongoDB booking/reservation data aggregations
+   - Why: Provides admin with actionable business insights
+
+4. ArrivalsChart
+   - Parent: VisitorStatsDashboard
+   - Purpose: Visualize booking patterns over time
+   - Chart Type: Line or Bar Chart (Chart.js)
+   - Metric: Monthly arrival counts
+   - Why: Identifies peak seasons and booking trends
+
+5. OriginChart
+   - Parent: VisitorStatsDashboard
+   - Purpose: Visualize visitor geographic distribution
+   - Chart Type: Pie or Bar Chart (Chart.js)
+   - Metric: Place of origin counts
+   - Why: Helps with targeted marketing by revealing source markets
+
+6. OccupancyMetric
+   - Parent: VisitorStatsDashboard
+   - Purpose: Display key occupancy statistic
+   - Display: Card with large percentage number
+   - Metric: Average occupancy rate across booking period
+   - Why: Quick snapshot of property performance
+
+7. SpendingMetric
+   - Parent: VisitorStatsDashboard
+   - Purpose: Display key financial metric
+   - Display: Card with large dollar amount
+   - Metric: Average spending per booking
+   - Why: Quick snapshot of revenue efficiency
+
+
+=============================================================================
+INTEGRATION POINTS
+=============================================================================
+
+Q: How do the new components fit into existing architecture?
+
+A: 
+- WeatherWidget integrates into the existing Hero component, adding real-time
+  data enrichment to the marketing page without disrupting current flow.
+  
+- VisitorStatsDashboard is a NEW top-level page route (/dashboard) separate
+  from the marketing page, accessed only by authenticated admins.
+  
+- The DashboardPage utilizes the existing authentication system (AdminAuthPage)
+  to verify access before rendering sensitive metrics.
+  
+- All dashboard components query the existing MongoDB database through new API
+  endpoints (/api/arrivals, /api/origins, /api/occupancy, /api/spending) that
+  aggregate booking data from existing collections.
+  
+- Chart.js is added as a new dependency for rendering dashboard visualizations.
+
+
+=============================================================================
+DESIGN DECISIONS & RATIONALE
+=============================================================================
+
+1. React Router over Conditional Rendering
+   - Decision: Use React Router (separate /dashboard route)
+   - Why: Allows bookmarkable URLs, cleaner separation of concerns, scales better
+   
+2. Weather Widget on Marketing Page
+   - Decision: Place in Hero section
+   - Why: Immediate impact on visitor decision-making; weather influences travel plans
+   
+3. All 4 Metrics on One Dashboard
+   - Decision: Single /dashboard page with 4 components
+   - Why: Admin sees complete picture at a glance; faster insights
+   
+4. External API for Weather
+   - Decision: Don't store weather in MongoDB
+   - Why: Weather changes hourly; no need for historical data in database
+   
+5. MongoDB Aggregations for Stats
+   - Decision: Query existing bookings collection
+   - Why: Single source of truth; no data duplication; real-time accuracy
