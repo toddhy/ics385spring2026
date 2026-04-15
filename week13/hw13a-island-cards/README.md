@@ -57,4 +57,6 @@ npm install
 npm run dev
 ```
 
+Code generated with assistance of Claude Haiku 4.5
+
 Then open http://localhost:5173 in your browser.
