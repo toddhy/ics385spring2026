@@ -83,6 +83,7 @@ src/data/tourism-data.json
 **Create 5 files:**
 
 ### 1. ArrivalsByMonth.jsx
+{% raw %}
 ```javascript
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
@@ -105,8 +106,10 @@ export default function ArrivalsByMonth({ months, arrivals }) {
   );
 }
 ```
+{% endraw %}
 
 ### 2. PlaceOfOrigin.jsx
+{% raw %}
 ```javascript
 import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
@@ -131,6 +134,7 @@ export default function PlaceOfOrigin({ placeData }) {
   );
 }
 ```
+{% endraw %}
 
 ### 3. OccupancyCard.jsx
 ```javascript
