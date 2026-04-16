@@ -1,4 +1,10 @@
 
+**Week 13 - Weather & Dashboard Updates**
+
+Added in week13 term project (see week13/README.md for details)
+
+---
+
 **Week 12**
 
 Transitioning from EJS to React jsx. Still using Express and MongoDB servers that were set up in week 11. The express backend server runs on port 3000, react frontend runs 5173 with vite. The two communicate through fetch() calls to the API. Page displays property details, name, island, description, amenities, reviews and ratings.

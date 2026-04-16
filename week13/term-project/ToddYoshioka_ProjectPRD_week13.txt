@@ -1,0 +1,60 @@
+﻿Todd Yoshioka
+ICS 385
+Dr. Debasis Bhattacharya
+
+
+Product Requirements Document
+Project Overview
+        We are creating a website for a vacation rental unit in Pukalani on the island of Maui. The name of it will be Upcountry Honeymoon Getaway, and it will be targeted at Honeymooning couples from the mainland. The website will consist of a Marketing page, which highlights the features of the property, a Visitors Statistics Dashboard, which I’m not sure what this will do yet, and an Admin Authentication page, which allows an administrator to change property details and bookings.
+        The main draws of the property will be the scenic views of the valley and ocean, and the quiet restfulness of being in the country. It is located at the edge of a small, quiet residential neighborhood, with a ravine on the opposite side. Other major draws will be a small pool, washer and dryer, and wi-fi.
+User Personas
+        The two main personas that will be using the website are target visitors before and after booking, and the administrator of the website. For prospective visitors, they will be viewing the marketing and booking pages, but they will have to be distinguished from people who have already booked. Those will need separate access to view or cancel their booking. The website administrator will have access to changing all pages’ contents, cancelling bookings, and changing available days open on the calendar. 
+Marketing Page Requirements
+        The marketing page requirements are Hero, About, Amenities , and a Call-to-Action. Hero component is a photo of the property and a tagline. About will briefly describe what is special about being situated in upcountry Maui for honeymoon. Amenities will list things like pool, washer/dryer, TV, wifi, etc. Call to action component will have buttons to either contact me for more information or to make a booking.
+        There will be a section that shows current weather at the property and possibly past weather trends. The data will be sourced from OpenweatherAPI (https://openweathermap.org/). It is important to store API keys in an .env file and not commit them to code. Variables tracked will be temperature, forecast, and chance of rain.
+        The assignment calls for an island selector but I only have a one property on a single island. I either have to add another property or think of some equivalent implementation.
+Admin Dashboard
+        The administrator will have access to visitor metrics showing visitor arrivals by month, visitor places of origin, and average occupancy rate and visitor spending. The first will be bar char, the second a pie chart, and the last will simply be displayed on the page. These will be generated using Chart.js. Data will be sourced from the Department of Business, Economic Development & Tourism website located at the url: https://dbedt.hawaii.gov/economic/tourism-dashboard/
+
+
+Component Hierarchy Diagram
+Marketing Page
+main.jsx
+        
+        App.jsx
+                Property
+                        Header
+                        Details
+                        Amenities
+                        Reviews
+                                ReviewText
+                                Rating
+                WeatherWidget
+                Calendar
+Admin Page
+App.jsx
+        Dashboard
+                VisitorStatsDashboard
+                        ArrivalsByMonth
+                        PlaceOfOrigin
+                        Occupancy
+                        Spending
+        
+
+
+Data Flow
+        Data is stored in a MongoDB database on the back end. It will be queried with the .find() method and the resulting data will be sent to server in a json file. In the browser, react will fetch the data from api endpoint, then render and return it to user in desired format.
+        
+Acceptance Criteria
+1. Given a user who wants to leave a rating, when they click rate, then they are able to leave number of stars and brief comment.
+2. Given a user who wants to make a booking, when they click ‘book now’, then they are taken to a booking page which shows available dates.
+3. Given an administrator who wants to open or close availability days, when they view calendar, then they have an option to edit it.
+4. Given a user on a mobile phone, when they open page then it is as functional as a user using a regular screen.
+5. Given a user who visits page, when they open page it loads in under 3 seconds.
+
+
+
+
+
+
+Chart from mongodb

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import './App.css';
 import Header from './components/Header';
 import HeroSection from './components/HeroSection';
@@ -5,9 +6,11 @@ import AboutSection from './components/AboutSection';
 import AmenitiesSection from './components/AmenitiesSection';
 import CTASection from './components/CTASection';
 import Footer from './components/Footer';
+import WeatherDisplay from './components/dashboard/WeatherDisplay';
+import VisitorStatsDashboard from './components/dashboard/VisitorStatsDashboard';
 
 export default function App() {
-  // Hardcoded property data
+  const [showDashboard, setShowDashboard] = useState(false);
   const property = {
     name: 'Upcountry Honeymoon Getaway',
     island: 'Maui',
@@ -24,9 +27,51 @@ export default function App() {
     contactEmail: 'reservations@upcountrygetaway.com'
   };
 
+  if (showDashboard) {
+    return (
+      <div className="app">
+        <button 
+          onClick={() => setShowDashboard(false)} 
+          style={{
+            position: 'fixed',
+            top: '20px',
+            left: '20px',
+            zIndex: 1000,
+            padding: '10px 20px',
+            backgroundColor: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            fontWeight: 'bold'
+          }}
+        >
+          ← Back to Marketing
+        </button>
+        <VisitorStatsDashboard />
+      </div>
+    );
+  }
 
   return (
     <div className="app">
+      <button 
+        onClick={() => setShowDashboard(true)} 
+        style={{
+          position: 'fixed',
+          bottom: '20px',
+          right: '20px',
+          zIndex: 1000,
+          padding: '10px 20px',
+          backgroundColor: '#0EA5E9',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer',
+          fontWeight: 'bold'
+        }}
+      >
+        View Dashboard
+      </button>
       <Header />
       
       <main className="main-content">
@@ -36,6 +81,10 @@ export default function App() {
           tagline={property.tagline}
           imageURL={property.imageURL}
         />
+        
+        <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%', padding: '0 1rem' }}>
+          <WeatherDisplay />
+        </div>
         
         <AboutSection 
           description={property.description}
