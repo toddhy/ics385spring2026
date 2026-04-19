@@ -2,6 +2,9 @@ import express from 'express';
 import mongoose from 'mongoose';
 import 'dotenv/config';
 import Property from './models/Property.js';
+import TourismStatistics from './models/TourismStatistics.js';
+import TourismMarketShare from './models/TourismMarketShare.js';
+import USRegionsData from './models/USRegionsData.js';
 import cors from 'cors';
 
 const app = express();
@@ -164,6 +167,71 @@ app.post('/properties/:id/reviews', async (req, res) => {
       review,
       property
     });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /api/tourism - Get all tourism statistics
+app.get('/api/tourism', async (req, res) => {
+  try {
+    const tourismStats = await TourismStatistics.find().sort({ month: 1 });
+    res.json(tourismStats);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /api/tourism/market-share - Get the tourism market-share summary
+app.get('/api/tourism/market-share', async (req, res) => {
+  try {
+    const marketShare = await TourismMarketShare.findOne().sort({ createdAt: -1 });
+
+    if (!marketShare) {
+      return res.status(404).json({ error: 'Tourism market share data not found' });
+    }
+
+    res.json(marketShare.marketShare);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /api/tourism/:month - Get tourism statistics for a specific month
+app.get('/api/tourism/:month', async (req, res) => {
+  try {
+    const stat = await TourismStatistics.findOne({ month: req.params.month });
+    
+    if (!stat) {
+      return res.status(404).json({ error: 'Tourism data for that month not found' });
+    }
+    
+    res.json(stat);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /api/us-regions - Get all US regions data
+app.get('/api/us-regions', async (req, res) => {
+  try {
+    const regionsData = await USRegionsData.find().sort({ month: 1 });
+    res.json(regionsData);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET /api/us-regions/:month - Get US regions data for a specific month
+app.get('/api/us-regions/:month', async (req, res) => {
+  try {
+    const data = await USRegionsData.findOne({ month: req.params.month });
+    
+    if (!data) {
+      return res.status(404).json({ error: 'US regions data for that month not found' });
+    }
+    
+    res.json(data);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
