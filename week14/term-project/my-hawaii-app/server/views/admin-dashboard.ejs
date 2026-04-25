@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Hawaii Hospitality</title>
+    <style>
+        :root {
+            --primary: #008080;
+            --teal: #008080;
+            --light-bg: #f4f7f6;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: var(--light-bg);
+        }
+        nav {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .container {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: auto;
+        }
+        .welcome-section {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        th, td {
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        th {
+            background-color: #f8f9fa;
+            color: var(--primary);
+        }
+        .stats-badge {
+            background: var(--teal);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <span>Hawaii Hospitality Admin</span>
+        <a href="/admin/logout">Logout</a>
+    </nav>
+
+    <div class="container">
+        <div class="welcome-section">
+            <h2>Welcome, <%= adminEmail %></h2>
+            <p>Dashboard for <strong><%= propertyName %></strong></p>
+            <div class="stats-badge">Total Guest Reviews: <%= totalReviews %></div>
+        </div>
+
+        <h3>Property Documents</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Property Name</th>
+                    <th>Island</th>
+                    <th>Type</th>
+                    <th>Rating</th>
+                    <th>Reviews</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% properties.forEach(prop => { %>
+                    <tr>
+                        <td><%= prop.name %></td>
+                        <td><%= prop.island %></td>
+                        <td><%= prop.type %></td>
+                        <td>
+                            <% 
+                                let avgRating = 0;
+                                if (prop.reviews && prop.reviews.length > 0) {
+                                    avgRating = (prop.reviews.reduce((acc, r) => acc + r.rating, 0) / prop.reviews.length).toFixed(1);
+                                }
+                            %>
+                            <%= avgRating %> / 5
+                        </td>
+                        <td><%= prop.reviews ? prop.reviews.length : 0 %></td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
