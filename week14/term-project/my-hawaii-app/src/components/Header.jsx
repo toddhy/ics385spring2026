@@ -11,7 +11,7 @@ export default function Header() {
         <ul className="nav-links">
           <li><a href="#home" className="nav-link">Home</a></li>
           <li><a href="#dashboard" className="nav-link">Dashboard</a></li>
-          <li><a href="#admin" className="nav-link">Admin</a></li>
+          <li><a href="http://localhost:3000/admin/login" className="nav-link">Admin</a></li>
         </ul>
       </nav>
     </header>

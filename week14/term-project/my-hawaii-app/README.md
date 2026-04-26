@@ -9,17 +9,19 @@ The node module express-session is used to assign unique session IDs to users wh
 Another new node module used is connect-mongo. This allows sessions IDs to be stored in mongoDB rather than in ram. So if the server is restarted, it won't log out the admin. I'm using the cloud based mongoDB atlas, which I don't know if is a good idea because it relies on internet connection and their servers.
 
 Commands to run the page in its current state:
-
 Backend:
+```
 cd week14/term-project/my-hawaii-app/server
 node server.js
-
+```
 Frontend:
+```
 cd week14/term-project/my-hawaii-app
 npm run dev
-
-Administrator login name is admin@myhawaiiapp.com. 
-
+```
+Administrator login name is admin@myhawaiiapp.com. The two sites are on different ports:
+Main Property Site: http://localhost:5173/
+dmin Login: http://localhost:3000/admin/login
 
 
 **Week 13**
