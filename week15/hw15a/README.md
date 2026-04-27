@@ -3,3 +3,14 @@ Google OAuth simplified credential management by letting Google handle secure pa
 But on the downside, I still have to keep google's client ID and secret for my project safe. Using 0Auth also makes me dependent on Google having their services online in order for people to login. 
 
 Code generated with the help of Google Gemini 3 Flash.
+
+## Application Screenshots
+
+### Consent Screen
+![Home Page](screenshots/Screenshot%202026-04-27%20052926.png)
+
+### /profile Page
+![Google Consent](screenshots/Screenshot%202026-04-27%20052940.png)
+
+### MongoDB Compass user document
+![User Profile](screenshots/Screenshot%202026-04-27%20053123.png)
