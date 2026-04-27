@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+</head>
+<body>
+    <h1>User Profile</h1>
+    <% if (user) { %>
+        <p><strong>Display Name:</strong> <%= user.displayName %></p>
+        <p><strong>Email:</strong> <%= user.email %></p>
+        <p><strong>Mongoose ID:</strong> <%= user._id %></p>
+        <a href="/">Go Home</a>
+        <form action="/logout" method="POST">
+            <button type="submit">Logout</button>
+        </form>
+    <% } else { %>
+        <p>Please <a href="/">sign in</a> to view this page.</p>
+    <% } %>
+</body>
+</html>

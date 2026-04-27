@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Sign In</title>
+</head>
+<body>
+    <h1>Welcome to HW15-A</h1>
+    <% if (user) { %>
+        <p>Hello, <%= user.displayName %>!</p>
+        <a href="/profile">View Profile</a>
+        <form action="/logout" method="POST">
+            <button type="submit">Logout</button>
+        </form>
+    <% } else { %>
+        <a href="/auth/google">
+            <button type="button">Sign in with Google</button>
+        </a>
+    <% } %>
+</body>
+</html>
