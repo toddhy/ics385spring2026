@@ -1,3 +1,104 @@
+Maui Honeymoon Getaway Website
+
+Full stack deployment of a website for a Maui vacation rental intended for honeymooners.
+
+Live site: https://ics385spring2026-d4pg.onrender.com/
+
+**Setup**
+
+1. Clone the repository and open the project folder.
+```bash
+git clone https://github.com/toddhy/ics385spring2026.git
+cd ics385spring2026/week15/term-project
+```
+
+2. Create the backend environment file.
+- Copy `.env.example` to `.env` in `week15/term-project/`.
+- Fill in `MONGO_URI`, `SESSION_SECRET`, `OPENWEATHER_API_KEY`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and `GOOGLE_CALLBACK_URL`.
+- If you are not using Google login yet, you can still set the values to placeholders, but Google auth will not work until real credentials are added.
+
+3. Create the frontend environment file.
+- Copy `client/.env.example` to `client/.env`.
+- Set `VITE_WEATHER_KEY` to your OpenWeatherMap API key.
+- Keep `VITE_API_BASE_URL` pointed at the backend, usually `http://localhost:3000`.
+
+4. Install dependencies.
+```bash
+npm install
+npm install --prefix client
+```
+
+5. Start the app.
+- Start both servers from the project root:
+```bash
+npm run dev
+```
+- Or run them separately:
+```bash
+npm start
+npm run dev --prefix client
+```
+
+6. Open the local URLs.
+- Frontend: `http://localhost:5173/`
+- Backend: `http://localhost:3000/`
+- Admin login: `http://localhost:3000/admin/login`
+
+---
+
+**Technology Stack**
+
+**Frontend:**
+- React 19 — UI library
+- Vite — build tool and dev server
+- Chart.js — data visualization
+
+**Backend:**
+- Node.js + Express — web framework
+- Passport.js — authentication (Local + Google OAuth)
+- Express-session + connect-mongo — session management
+- Bcrypt — password hashing
+- Helmet — security headers
+
+**Database:**
+- MongoDB — NoSQL database
+- Mongoose — ODM library
+
+**Deployment:**
+- Render — hosting
+
+**External Services:**
+- OpenWeatherMap API — weather data
+- Google OAuth — authentication
+
+---
+
+Test script located in tests/auth.test.js. Run with the command
+```
+npm test
+```
+**Test Results**
+
+| Test | Status | Description |
+|------|--------|-------------|
+| AC-3 | ✓ PASS | Local sign-up creates a hashed user and redirects to /admin/dashboard |
+| AC-4 | ✓ PASS | Local sign-in with correct credentials redirects and sets a session cookie |
+| AC-5 | ✓ PASS | Mocked Google OAuth callback creates a Google user and redirects to /admin/dashboard |
+| AC-6 | ✓ PASS | Protected dashboard redirects unauthenticated visitors to /admin/login |
+| AC-7 | ✓ PASS | Logout clears the session and blocks the next dashboard request |
+
+**Test Summary:** 5 passed, 5 total | All acceptance criteria met
+
+---
+
+**A.I. Attribution:** Gemini 3 Flash used to generate much of the code for this website. It also assisted in writing the installation, technology stack and test sections of this README.
+
+**Weekly logs**
+
+**Week 15**
+
+Added Google OAuth which allows administrator to sign up and login using their google account instead of a password. Deployed page on render.com. 
+
 **Week 14**
 
 Added administrator authentication and login. Bcrypt added to the models\User.js file to salt the password prior to saving it as hash. Created isAuthenticated function in the middleware folder to check whether to let a user through to admin dashboard or else redirect them back to login page. This method is then useable by Passport.js to return true if the user is logged in or false otherwise. 
@@ -8,20 +109,9 @@ The node module express-session is used to assign unique session IDs to users wh
 
 Another new node module used is connect-mongo. This allows sessions IDs to be stored in mongoDB rather than in ram. So if the server is restarted, it won't log out the admin. I'm using the cloud based mongoDB atlas, which I don't know if is a good idea because it relies on internet connection and their servers.
 
-Commands to run the page in its current state:
-Backend:
-```
-cd week14/term-project/my-hawaii-app/server
-node server.js
-```
-Frontend:
-```
-cd week14/term-project/my-hawaii-app
-npm run dev
-```
 Administrator login name is admin@myhawaiiapp.com. The two sites are on different ports:
 Main Property Site: http://localhost:5173/
-dmin Login: http://localhost:3000/admin/login
+Admin Login: http://localhost:3000/admin/login
 
 
 **Week 13**
