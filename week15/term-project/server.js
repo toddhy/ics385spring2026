@@ -12,6 +12,7 @@ import TourismStatistics from './models/TourismStatistics.js';
 import TourismMarketShare from './models/TourismMarketShare.js';
 import USRegionsData from './models/USRegionsData.js';
 import cors from 'cors';
+import helmet from 'helmet';
 
 import initializePassport from './passport-config.js';
 import authRoutes from './routes/auth.js';
@@ -22,6 +23,9 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Security Middleware
+app.use(helmet());
 
 initializePassport(passport);
 
@@ -44,7 +48,12 @@ const sessionOptions = {
   secret: process.env.SESSION_SECRET || 'secret',
   resave: false,
   saveUninitialized: false,
-  cookie: { maxAge: 1000 * 60 * 60 * 24 } // 1 day
+  cookie: { 
+    maxAge: 1000 * 60 * 60 * 24, // 1 day
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production'
+  }
 };
 
 if (process.env.NODE_ENV !== 'test' && process.env.MONGO_URI) {

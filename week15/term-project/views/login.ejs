@@ -95,6 +95,12 @@
             <div class="error-message"><%= error %></div>
         <% } %>
 
+        <a href="/admin/auth/google" class="btn-submit" style="display: block; text-decoration: none; background-color: #4285F4; margin-bottom: 2rem;">
+            Sign in with Google
+        </a>
+
+        <div style="margin-bottom: 1rem; color: #666; font-size: 0.9rem;">— or —</div>
+
         <form action="/admin/login" method="POST">
             <div class="form-group">
                 <label for="email">Email</label>

@@ -1,5 +1,6 @@
 import express from 'express';
 import passport from 'passport';
+import { body, validationResult } from 'express-validator';
 import User from '../models/User.js';
 
 const router = express.Router();
@@ -22,15 +23,17 @@ router.get('/register', (req, res) => {
 });
 
 // POST /admin/register
-router.post('/register', async (req, res, next) => {
+router.post('/register', [
+  body('email').isEmail().withMessage('Enter a valid email address').normalizeEmail(),
+  body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters').trim().escape()
+], async (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.redirect(`/admin/register?error=${encodeURIComponent(errors.array()[0].msg)}`);
+  }
+
   try {
     const { email, password } = req.body;
-    if (!email) {
-      return res.redirect('/admin/register?error=Email is required.');
-    }
-    if (!password || password.length < 8) {
-      return res.redirect('/admin/register?error=Password must be at least 8 characters.');
-    }
     const newUser = new User({ email, password });
     await newUser.save();
     return loginAndRedirect(req, res, next, newUser);
@@ -40,55 +43,75 @@ router.post('/register', async (req, res, next) => {
 });
 
 // POST /admin/login
-router.post('/login', (req, res, next) => {
+router.post('/login', [
+  body('email').isEmail().withMessage('Enter a valid email address').normalizeEmail(),
+  body('password').notEmpty().withMessage('Password is required').trim().escape()
+], (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.redirect(`/admin/login?error=${encodeURIComponent(errors.array()[0].msg)}`);
+  }
+
   passport.authenticate('local', (err, user, info) => {
     if (err) return next(err);
     if (!user) {
-      return res.redirect('/admin/login?error=Invalid%20credentials.%20Please%20try%20again.');
+      return res.redirect('/admin/login?error=' + encodeURIComponent(info.message || 'Invalid credentials.'));
     }
     return loginAndRedirect(req, res, next, user);
   })(req, res, next);
 });
 
 // GET /admin/auth/google
-router.get('/auth/google', (req, res) => {
-  if (process.env.NODE_ENV !== 'test') {
-    return res.redirect('/admin/login?error=Google%20OAuth%20is%20not%20configured.');
-  }
-
-  return res.redirect('/admin/auth/google/callback?googleId=test-google-id&email=google-user@example.com&displayName=Google%20Test%20User');
-});
+router.get('/auth/google', passport.authenticate('google', {
+  scope: ['profile', 'email']
+}));
 
 // GET /admin/auth/google/callback
-router.get('/auth/google/callback', async (req, res, next) => {
-  if (process.env.NODE_ENV !== 'test') {
-    return res.redirect('/admin/login?error=Google%20OAuth%20is%20not%20configured.');
-  }
-
-  try {
-    const {
-      googleId = 'test-google-id',
-      email = 'google-user@example.com',
-      displayName = 'Google Test User'
-    } = req.query;
-
-    const user = await User.findOneAndUpdate(
-      { googleId },
-      {
-        $set: {
-          email,
-          displayName,
-          googleId,
-          provider: 'google'
+router.get('/auth/google/callback', (req, res, next) => {
+  if (process.env.NODE_ENV === 'test') {
+    // Mocked behavior for tests to bypass real Google OAuth redirect
+    const { googleId = 'test-google-id', email = 'google-user@example.com', displayName = 'Google Test User' } = req.query;
+    
+    // We need to simulate the find-or-link-or-create logic here for tests since passport.authenticate is skipped
+    import('../models/User.js').then(async (module) => {
+      const User = module.default;
+      try {
+        let user = await User.findOne({ googleId });
+        if (!user) {
+          if (email) {
+            user = await User.findOne({ email });
+            if (user) {
+              user.googleId = googleId;
+              await user.save();
+            }
+          }
         }
-      },
-      { new: true, upsert: true, setDefaultsOnInsert: true }
-    );
-
-    return loginAndRedirect(req, res, next, user);
-  } catch (error) {
-    return next(error);
+        
+        if (!user) {
+          user = new User({
+            googleId,
+            email,
+            displayName,
+            provider: 'google'
+          });
+          await user.save();
+        }
+        
+        return loginAndRedirect(req, res, next, user);
+      } catch (err) {
+        return next(err);
+      }
+    });
+    return;
   }
+
+  passport.authenticate('google', (err, user, info) => {
+    if (err) return next(err);
+    if (!user) {
+      return res.redirect('/admin/login?error=Google authentication failed.');
+    }
+    return loginAndRedirect(req, res, next, user);
+  })(req, res, next);
 });
 
 function logout(req, res, next) {
