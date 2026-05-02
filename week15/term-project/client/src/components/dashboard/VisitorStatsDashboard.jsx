@@ -13,7 +13,7 @@ export default function VisitorStatsDashboard() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const apiBase = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+        const apiBase = import.meta.env.VITE_API_BASE_URL || window.location.origin;
 
         const [tourismResponse, usRegionsResponse, marketShareResponse] = await Promise.all([
           fetch(`${apiBase}/api/tourism`),
