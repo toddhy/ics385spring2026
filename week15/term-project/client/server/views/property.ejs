@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= property.name %> - Details</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .back-link {
+            color: white;
+            text-decoration: none;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+        
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        
+        .property-header {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .property-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            background: #e0e0e0;
+        }
+        
+        .property-info {
+            padding: 30px;
+        }
+        
+        .property-name {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .property-island {
+            color: #667eea;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .property-type {
+            background: #753ba3;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        
+        .property-description {
+            color: #666;
+            line-height: 1.8;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+        
+        .amenities, .target-segment {
+            margin-bottom: 20px;
+        }
+        
+        .amenities h3, .target-segment h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .amenities ul {
+            list-style-position: inside;
+            color: #666;
+        }
+        
+        .amenities li {
+            margin-bottom: 5px;
+        }
+        
+        .reviews-section {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .reviews-section h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .review-form {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: bold;
+        }
+        
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .form-group input[type="number"] {
+            max-width: 150px;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: opacity 0.3s;
+        }
+        
+        .submit-btn:hover {
+            opacity: 0.9;
+        }
+        
+        .reviews-list {
+            margin-top: 30px;
+        }
+        
+        .review-card {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .review-guest {
+            font-weight: bold;
+            color: #333;
+            font-size: 1.1rem;
+        }
+        
+        .review-date {
+            color: #999;
+            font-size: 0.9rem;
+        }
+        
+        .review-rating {
+            color: #ff9800;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .review-comment {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .no-reviews {
+            color: #999;
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">← Back to Properties</a>
+        
+        <div class="property-header">
+            <img src="<%= property.imageURL %>" alt="<%= property.name %>" class="property-image" onerror="this.style.display='none'">
+            <div class="property-info">
+                <h1 class="property-name"><%= property.name %></h1>
+                <div class="property-island">📍 <%= property.island %></div>
+                <% if (property.type) { %>
+                    <div class="property-type"><%= property.type %></div>
+                <% } %>
+                <div class="property-description"><%= property.description %></div>
+                
+                <% if (property.amenities && property.amenities.length > 0) { %>
+                    <div class="amenities">
+                        <h3>🏨 Amenities</h3>
+                        <ul>
+                            <% property.amenities.forEach(amenity => { %>
+                                <li><%= amenity %></li>
+                            <% }) %>
+                        </ul>
+                    </div>
+                <% } %>
+                
+                <% if (property.targetSegment) { %>
+                    <div class="target-segment">
+                        <h3>👥 Target Segment</h3>
+                        <p><%= property.targetSegment %></p>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+        
+        <div class="reviews-section">
+            <h2>⭐ Reviews</h2>
+            
+            <div class="review-form">
+                <h3 style="margin-bottom: 15px;">Add Your Review</h3>
+                <form id="reviewForm">
+                    <div class="form-group">
+                        <label for="guestName">Your Name</label>
+                        <input type="text" id="guestName" name="guestName" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="rating">Rating (1-5)</label>
+                        <input type="number" id="rating" name="rating" min="1" max="5" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="comment">Comment (optional)</label>
+                        <textarea id="comment" name="comment"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">Submit Review</button>
+                </form>
+            </div>
+            
+            <div class="reviews-list">
+                <% if (property.reviews && property.reviews.length > 0) { %>
+                    <h3 style="margin-bottom: 15px;">Recent Reviews</h3>
+                    <% property.reviews.forEach(review => { %>
+                        <div class="review-card">
+                            <div class="review-header">
+                                <span class="review-guest"><%= review.guestName %></span>
+                                <span class="review-date"><%= new Date(review.date).toLocaleDateString() %></span>
+                            </div>
+                            <div class="review-rating">Rating: <%= review.rating %>/5 ⭐</div>
+                            <% if (review.comment) { %>
+                                <div class="review-comment"><%= review.comment %></div>
+                            <% } %>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <div class="no-reviews">No reviews yet. Be the first to review!</div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('reviewForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                guestName: document.getElementById('guestName').value,
+                rating: parseInt(document.getElementById('rating').value),
+                comment: document.getElementById('comment').value
+            };
+            
+            try {
+                const response = await fetch('/properties/<%= property._id %>/reviews', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (response.ok) {
+                    alert('Review submitted successfully!');
+                    location.reload();
+                } else {
+                    const error = await response.json();
+                    alert('Error: ' + error.error);
+                }
+            } catch (error) {
+                alert('Error submitting review: ' + error.message);
+            }
+        });
+    </script>
+</body>
+</html>

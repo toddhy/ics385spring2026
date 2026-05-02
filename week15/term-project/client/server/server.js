@@ -23,14 +23,10 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Passport Config
 initializePassport(passport);
 
-if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-  });
-}
-// Passport Config
+// Middleware
 app.use(cors()); // Enable CORS for all routes
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -39,34 +35,25 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Session middleware
-const sessionOptions = {
+app.use(session({
   secret: process.env.SESSION_SECRET || 'secret',
   resave: false,
   saveUninitialized: false,
+  store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
   cookie: { maxAge: 1000 * 60 * 60 * 24 } // 1 day
-};
-
-if (process.env.NODE_ENV !== 'test' && process.env.MONGO_URI) {
-  sessionOptions.store = MongoStore.create({ mongoUrl: process.env.MONGO_URI });
-}
-
-app.use(session(sessionOptions));
+}));
 
 app.use(passport.initialize());
 app.use(passport.session());
 
 // Connect to MongoDB
-if (process.env.NODE_ENV !== 'test' && process.env.MONGO_URI) {
-  mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('Connected to MongoDB'))
-    .catch(err => console.error('MongoDB connection error:', err));
-}
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('Connected to MongoDB'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
 // Routes
 app.use('/admin', authRoutes);
 app.use('/admin', adminRoutes);
-
-export default app;
 
 // GET / - Render properties with optional filters (island, minRating)
 app.get('/', async (req, res) => {
@@ -283,4 +270,6 @@ app.get('/api/us-regions/:month', async (req, res) => {
 });
 
 // Start server
-// app.listen moved to the top with NODE_ENV check
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});

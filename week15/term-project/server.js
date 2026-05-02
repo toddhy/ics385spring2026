@@ -37,6 +37,7 @@ app.use(express.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'client/dist')));
 
 // Session middleware
 const sessionOptions = {
@@ -65,6 +66,15 @@ if (process.env.NODE_ENV !== 'test' && process.env.MONGO_URI) {
 // Routes
 app.use('/admin', authRoutes);
 app.use('/admin', adminRoutes);
+
+// Catch-all route to serve React's index.html for any non-API routes
+app.get('*', (req, res, next) => {
+  // If the request is for an API or admin route, let it pass through
+  if (req.path.startsWith('/api') || req.path.startsWith('/admin')) {
+    return next();
+  }
+  res.sendFile(path.join(__dirname, 'client/dist/index.html'));
+});
 
 export default app;
 

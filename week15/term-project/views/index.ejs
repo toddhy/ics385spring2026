@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hawaii Tourism Properties</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .properties-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .property-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .property-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 12px rgba(0,0,0,0.2);
+        }
+        
+        .property-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: #e0e0e0;
+        }
+        
+        .property-content {
+            padding: 20px;
+        }
+        
+        .property-name {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .property-island {
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .property-type {
+            background: #753ba3;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: inline-block;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+        }
+        
+        .property-description {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.5;
+            font-size: 0.95rem;
+        }
+        
+        .view-details-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: opacity 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            width: 100%;
+            text-align: center;
+        }
+        
+        .view-details-btn:hover {
+            opacity: 0.9;
+        }
+        
+        .filter-section {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .filter-section h2 {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 1.5rem;
+        }
+        
+        .filter-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            align-items: flex-end;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .filter-group label {
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .filter-group input,
+        .filter-group select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+        
+        .filter-group input:focus,
+        .filter-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .filter-btn, .clear-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: opacity 0.3s;
+        }
+        
+        .filter-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .filter-btn:hover {
+            opacity: 0.9;
+        }
+        
+        .clear-btn {
+            background: #ddd;
+            color: #333;
+            text-decoration: none;
+            text-align: center;
+            display: inline-block;
+        }
+        
+        .clear-btn:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌺 Hawaii Tourism Properties</h1>
+        
+        <div class="filter-section">
+            <h2>🔍 Filter Properties</h2>
+            <form method="GET" action="/" class="filter-form">
+                <div class="filter-group">
+                    <label for="islandFilter">Island:</label>
+                    <input type="text" id="islandFilter" name="island" placeholder="e.g., Oahu, Maui, Big Island" value="<%= island || '' %>">
+                </div>
+                
+                <div class="filter-group">
+                    <label for="ratingFilter">Minimum Average Rating:</label>
+                    <select id="ratingFilter" name="minRating">
+                        <option value="">All Ratings</option>
+                        <option value="1" <%= minRating == 1 ? 'selected' : '' %>>1+ ⭐</option>
+                        <option value="2" <%= minRating == 2 ? 'selected' : '' %>>2+ ⭐</option>
+                        <option value="3" <%= minRating == 3 ? 'selected' : '' %>>3+ ⭐</option>
+                        <option value="4" <%= minRating == 4 ? 'selected' : '' %>>4+ ⭐</option>
+                        <option value="5" <%= minRating == 5 ? 'selected' : '' %>>5 ⭐</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="filter-btn">Apply Filters</button>
+                <a href="/" class="clear-btn">Clear Filters</a>
+            </form>
+        </div>
+        
+        
+        <div class="properties-grid">
+            <% if (properties && properties.length > 0) { %>
+                <div style="grid-column: 1/-1; background: #f0f0f0; padding: 15px; border-radius: 5px; margin-bottom: 10px; color: #333;">
+                    <strong>Results: <%= properties.length %> propert<%= properties.length === 1 ? 'y' : 'ies' %> found</strong>
+                    <% if (island || minRating) { %>
+                        <p style="margin-top: 5px; font-size: 0.9rem;">
+                            <% if (island) { %> Island: <%= island %> <% } %>
+                            <% if (minRating) { %> | Min Rating: <%= minRating %>+ ⭐ <% } %>
+                        </p>
+                    <% } %>
+                </div>
+                <% properties.forEach(property => { %>
+                    <div class="property-card">
+                        <img src="<%= property.imageURL %>" alt="<%= property.name %>" class="property-image" onerror="this.style.display='none'">
+                        <div class="property-content">
+                            <div class="property-name"><%= property.name %></div>
+                            <div class="property-island">📍 <%= property.island %></div>
+                            <% if (property.type) { %>
+                                <div class="property-type"><%= property.type %></div>
+                            <% } %>
+                            <div class="property-description"><%= property.description %></div>
+                            <a href="/properties/<%= property._id %>" class="view-details-btn">View Details & Reviews</a>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <div style="grid-column: 1/-1; background: #f0f0f0; padding: 20px; border-radius: 5px; text-align: center; color: #333;">
+                    <p><strong>No properties found matching your filters.</strong></p>
+                    <% if (island || minRating) { %>
+                        <p>Try adjusting your search criteria:</p>
+                        <% if (island) { %><p>• Island: "<%= island %>"</p><% } %>
+                        <% if (minRating) { %><p>• Minimum rating: <%= minRating %>+</p><% } %>
+                        <a href="/" style="display: inline-block; margin-top: 10px; padding: 8px 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 5px; text-decoration: none;">Clear Filters</a>
+                    <% } %>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</body>
+</html>

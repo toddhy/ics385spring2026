@@ -11,23 +11,7 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: function() {
-      return this.provider === 'local';
-    }
-  },
-  displayName: {
-    type: String,
-    trim: true
-  },
-  googleId: {
-    type: String,
-    unique: true,
-    sparse: true
-  },
-  provider: {
-    type: String,
-    enum: ['local', 'google'],
-    default: 'local'
+    required: true
   },
   role: {
     type: String,
@@ -40,7 +24,7 @@ const userSchema = new mongoose.Schema({
 
 // Pre-save hook to hash password
 userSchema.pre('save', async function() {
-  if (!this.password || !this.isModified('password')) {
+  if (!this.isModified('password')) {
     return;
   }
   try {
