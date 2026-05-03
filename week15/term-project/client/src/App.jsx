@@ -7,6 +7,7 @@ import AmenitiesSection from './components/AmenitiesSection';
 import CTASection from './components/CTASection';
 import Footer from './components/Footer';
 import WeatherDisplay from './components/dashboard/WeatherDisplay';
+import BookingCalendar from './components/booking/BookingCalendar';
 import VisitorStatsDashboard from './components/dashboard/VisitorStatsDashboard';
 
 export default function App() {
@@ -84,6 +85,10 @@ export default function App() {
         
         <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%', padding: '0 1rem' }}>
           <WeatherDisplay />
+        </div>
+
+        <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%', padding: '0 1rem' }}>
+          <BookingCalendar />
         </div>
         
         <AboutSection 

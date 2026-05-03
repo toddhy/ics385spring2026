@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login - Hawaii Hospitality</title>
+    <title>Guest Login - Hawaii Hospitality</title>
     <style>
         :root {
             --primary: #008080; /* Teal */
@@ -30,13 +30,14 @@
             max-width: 400px;
             text-align: center;
         }
-        .logo {
-            max-width: 150px;
-            margin-bottom: 1rem;
-        }
         h1 {
             color: var(--primary);
             font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 0.9rem;
             margin-bottom: 1.5rem;
         }
         .form-group {
@@ -79,6 +80,26 @@
             margin-bottom: 1rem;
             border: 1px solid #ffcccc;
         }
+        .links-container {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+        .links-container a {
+            display: block;
+            margin: 0.5rem 0;
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .links-container a:hover {
+            text-decoration: underline;
+        }
+        .divider {
+            margin: 1rem 0;
+            color: #999;
+            font-size: 0.85rem;
+        }
         @media (max-width: 375px) {
             .login-card {
                 padding: 1.5rem;
@@ -88,36 +109,32 @@
 </head>
 <body>
     <div class="login-card">
-        <!-- Property Name and Logo at the top -->
-        <h1>Hawaii Hospitality</h1>
-        <p style="color: #666; font-size: 0.85rem; margin-bottom: 1.5rem;">Administrator Portal</p>
+        <h1>🌺 Welcome Back</h1>
+        <p class="subtitle">Sign in to manage your reservations</p>
         
         <% if (error) { %>
             <div class="error-message"><%= error %></div>
         <% } %>
 
-        <a href="/admin/auth/google" class="btn-submit" style="display: block; text-decoration: none; background-color: #4285F4; margin-bottom: 2rem;">
-            Sign in with Google
-        </a>
-
-        <div style="margin-bottom: 1rem; color: #666; font-size: 0.9rem;">— or —</div>
-
-        <form action="/admin/login" method="POST">
+        <form action="/login" method="POST">
             <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" placeholder="admin@example.com" required aria-label="Administrator Email">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" placeholder="you@example.com" required aria-label="Email Address">
             </div>
             <div class="form-group">
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password" placeholder="••••••••" required aria-label="Password">
             </div>
-            <button type="submit" class="btn-submit">Login</button>
+            <button type="submit" class="btn-submit">Sign In</button>
         </form>
 
-        <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #eee;">
-            <p style="margin: 0 0 0.5rem 0; color: #666; font-size: 0.9rem;">Are you a guest?</p>
-            <a href="/login" style="display: block; color: var(--primary); text-decoration: none; font-size: 0.9rem; margin-bottom: 0.5rem;">Guest Login →</a>
-            <a href="http://localhost:5173" style="display: block; color: #999; text-decoration: none; font-size: 0.9rem;">Return to Main Site</a>
+        <div class="links-container">
+            <p style="margin: 0 0 0.5rem 0; color: #666; font-size: 0.9rem;">Don't have an account?</p>
+            <a href="/register">Create Account →</a>
+            
+            <div class="divider">or</div>
+            
+            <a href="/" style="color: #999;">Return to Website</a>
         </div>
     </div>
 </body>

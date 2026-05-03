@@ -1,11 +1,15 @@
 import express from 'express';
 import mongoose from 'mongoose';
-import 'dotenv/config';
+import dotenv from 'dotenv';
 import passport from 'passport';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import path from 'path';
 import { fileURLToPath } from 'url';
+
+// Load .env from the server directory (ensures variables are available
+// even when the process is started from the repo root)
+dotenv.config({ path: fileURLToPath(new URL('./.env', import.meta.url)) });
 
 import Property from './models/Property.js';
 import TourismStatistics from './models/TourismStatistics.js';
@@ -16,7 +20,10 @@ import helmet from 'helmet';
 
 import initializePassport from './passport-config.js';
 import authRoutes from './routes/auth.js';
+import visitorAuthRoutes from './routes/visitor-auth.js';
 import adminRoutes from './routes/admin.js';
+import authStatusRoutes from './routes/auth-status.js';
+import bookingRoutes from './routes/bookings.js';
 import weatherRoutes from './routes/weather.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -102,12 +109,19 @@ if (process.env.NODE_ENV !== 'test' && process.env.MONGO_URI) {
 // Routes
 app.use('/admin', authRoutes);
 app.use('/admin', adminRoutes);
+app.use('/', visitorAuthRoutes);
+app.use('/api/auth', authStatusRoutes);
+app.use('/api/bookings', bookingRoutes);
 app.use('/api/weather', weatherRoutes);
 
 // Catch-all route to serve React's index.html for any non-API routes
 app.get('*', (req, res, next) => {
-  // If the request is for an API or admin route, let it pass through
-  if (req.path.startsWith('/api') || req.path.startsWith('/admin')) {
+  // If the request is for an API, admin, or auth route, let it pass through
+  if (req.path.startsWith('/api') || 
+      req.path.startsWith('/admin') || 
+      req.path.startsWith('/login') || 
+      req.path.startsWith('/register') || 
+      req.path === '/logout') {
     return next();
   }
   res.sendFile(path.join(__dirname, 'client/dist/index.html'));
