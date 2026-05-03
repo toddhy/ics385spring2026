@@ -10,28 +10,29 @@ export default function WeatherDisplay() {
   useEffect(() => {
     const fetchWeather = async () => {
       try {
-        const apiKey = import.meta.env.VITE_WEATHER_KEY;
-        if (!apiKey) {
-          setError('Weather API key not configured');
-          setLoading(false);
-          return;
-        }
+        const apiBase = import.meta.env.VITE_API_BASE_URL || '';
 
         // Maui coordinates
         const lat = 20.7983;
         const lon = -156.3319;
 
-        // Current weather
+        // Current weather - call backend proxy
         const weatherResponse = await fetch(
-          `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=imperial&appid=${apiKey}`
+          `${apiBase}/api/weather/current?lat=${lat}&lon=${lon}`
         );
+        if (!weatherResponse.ok) {
+          throw new Error(`Weather API error: ${weatherResponse.statusText}`);
+        }
         const weatherData = await weatherResponse.json();
         setWeather(weatherData);
 
-        // 5-day forecast
+        // 5-day forecast - call backend proxy
         const forecastResponse = await fetch(
-          `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&units=imperial&appid=${apiKey}`
+          `${apiBase}/api/weather/forecast?lat=${lat}&lon=${lon}`
         );
+        if (!forecastResponse.ok) {
+          throw new Error(`Forecast API error: ${forecastResponse.statusText}`);
+        }
         const forecastData = await forecastResponse.json();
         setForecast(forecastData);
 

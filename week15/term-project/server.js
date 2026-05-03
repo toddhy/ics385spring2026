@@ -17,6 +17,7 @@ import helmet from 'helmet';
 import initializePassport from './passport-config.js';
 import authRoutes from './routes/auth.js';
 import adminRoutes from './routes/admin.js';
+import weatherRoutes from './routes/weather.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,7 +26,17 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Security Middleware
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      imgSrc: ["'self'", "data:", "https://images.unsplash.com"],
+      connectSrc: ["'self'", "https://api.openweathermap.org"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+    },
+  },
+}));
 
 initializePassport(passport);
 
@@ -75,6 +86,7 @@ if (process.env.NODE_ENV !== 'test' && process.env.MONGO_URI) {
 // Routes
 app.use('/admin', authRoutes);
 app.use('/admin', adminRoutes);
+app.use('/api/weather', weatherRoutes);
 
 // Catch-all route to serve React's index.html for any non-API routes
 app.get('*', (req, res, next) => {
