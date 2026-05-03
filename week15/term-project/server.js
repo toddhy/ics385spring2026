@@ -25,18 +25,34 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Security Middleware
-app.use(helmet({
+// Security Middleware - Adjust CSP based on environment
+const helmetConfig = {
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
       imgSrc: ["'self'", "data:", "https://images.unsplash.com"],
-      connectSrc: ["'self'", "https://api.openweathermap.org"],
       scriptSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
     },
   },
-}));
+};
+
+// In development, allow localhost connections; in production, only allow same-origin
+if (process.env.NODE_ENV === 'production') {
+  helmetConfig.contentSecurityPolicy.directives.connectSrc = [
+    "'self'",
+    "https://api.openweathermap.org",
+  ];
+} else {
+  // Development: allow localhost and all backend APIs
+  helmetConfig.contentSecurityPolicy.directives.connectSrc = [
+    "'self'",
+    "http://localhost:*",
+    "https://api.openweathermap.org",
+  ];
+}
+
+app.use(helmet(helmetConfig));
 
 initializePassport(passport);
 
