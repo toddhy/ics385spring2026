@@ -15,12 +15,13 @@ cd ics385spring2026/week15/term-project
 2. Create the backend environment file.
 - Copy `.env.example` to `.env` in `week15/term-project/`.
 - Fill in `MONGO_URI`, `SESSION_SECRET`, `OPENWEATHER_API_KEY`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, and `GOOGLE_CALLBACK_URL`.
+- If your deployment already has `VITE_WEATHER_KEY` set, the weather proxy will also accept that value.
 - If you are not using Google login yet, you can still set the values to placeholders, but Google auth will not work until real credentials are added.
 
 3. Create the frontend environment file.
 - Copy `client/.env.example` to `client/.env`.
-- Set `VITE_WEATHER_KEY` to your OpenWeatherMap API key.
-- Keep `VITE_API_BASE_URL` pointed at the backend, usually `http://localhost:3000`.
+- Keep `VITE_API_BASE_URL` pointed at the backend for local development, usually `http://localhost:3000`.
+- The weather section now calls your backend proxy, so it does not need a browser-exposed OpenWeatherMap key.
 
 4. Install dependencies.
 ```bash

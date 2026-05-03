@@ -5,7 +5,7 @@ const router = express.Router();
 // GET /api/weather/current - Proxy for current weather
 router.get('/current', async (req, res) => {
   try {
-    const apiKey = process.env.OPENWEATHER_API_KEY;
+    const apiKey = process.env.OPENWEATHER_API_KEY || process.env.VITE_WEATHER_KEY;
     
     if (!apiKey) {
       return res.status(500).json({ error: 'Weather API key not configured on server' });
@@ -33,7 +33,7 @@ router.get('/current', async (req, res) => {
 // GET /api/weather/forecast - Proxy for 5-day forecast
 router.get('/forecast', async (req, res) => {
   try {
-    const apiKey = process.env.OPENWEATHER_API_KEY;
+    const apiKey = process.env.OPENWEATHER_API_KEY || process.env.VITE_WEATHER_KEY;
     
     if (!apiKey) {
       return res.status(500).json({ error: 'Weather API key not configured on server' });
