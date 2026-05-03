@@ -13,12 +13,10 @@ export default function VisitorStatsDashboard() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const apiBase = import.meta.env.VITE_API_BASE_URL || window.location.origin;
-
         const [tourismResponse, usRegionsResponse, marketShareResponse] = await Promise.all([
-          fetch(`${apiBase}/api/tourism`),
-          fetch(`${apiBase}/api/us-regions`),
-          fetch(`${apiBase}/api/tourism/market-share`)
+          fetch('/api/tourism'),
+          fetch('/api/us-regions'),
+          fetch('/api/tourism/market-share')
         ]);
 
         if (!tourismResponse.ok) {

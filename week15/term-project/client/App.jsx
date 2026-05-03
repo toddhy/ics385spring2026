@@ -37,8 +37,8 @@ export default function App() {
     const fetchProperty = async () => {
       try {
         // Attempt to fetch from Express server
-        // Using /api/properties/:id - you may need to replace 'fallback-1' with an actual MongoDB ObjectId
-        const response = await fetch('http://localhost:3000/api/properties');
+        // Using a same-origin API path keeps the app working in both dev and production.
+        const response = await fetch('/api/properties');
         
         if (!response.ok) {
           throw new Error('Failed to fetch property');

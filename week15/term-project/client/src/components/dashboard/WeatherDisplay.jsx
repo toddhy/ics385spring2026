@@ -10,16 +10,12 @@ export default function WeatherDisplay() {
   useEffect(() => {
     const fetchWeather = async () => {
       try {
-        const apiBase = import.meta.env.VITE_API_BASE_URL || '';
-
         // Maui coordinates
         const lat = 20.7983;
         const lon = -156.3319;
 
         // Current weather - call backend proxy
-        const weatherResponse = await fetch(
-          `${apiBase}/api/weather/current?lat=${lat}&lon=${lon}`
-        );
+        const weatherResponse = await fetch(`/api/weather/current?lat=${lat}&lon=${lon}`);
         if (!weatherResponse.ok) {
           throw new Error(`Weather API error: ${weatherResponse.statusText}`);
         }
@@ -27,9 +23,7 @@ export default function WeatherDisplay() {
         setWeather(weatherData);
 
         // 5-day forecast - call backend proxy
-        const forecastResponse = await fetch(
-          `${apiBase}/api/weather/forecast?lat=${lat}&lon=${lon}`
-        );
+        const forecastResponse = await fetch(`/api/weather/forecast?lat=${lat}&lon=${lon}`);
         if (!forecastResponse.ok) {
           throw new Error(`Forecast API error: ${forecastResponse.statusText}`);
         }

@@ -13,8 +13,7 @@ export default function VisitorStatsDashboard() {
   useEffect(() => {
     const fetchTourismData = async () => {
       try {
-        const apiBase = import.meta.env.VITE_API_BASE_URL || window.location.origin;
-        const response = await fetch(`${apiBase}/api/tourism`);
+        const response = await fetch('/api/tourism');
         
         if (!response.ok) {
           throw new Error('Failed to fetch tourism data');
