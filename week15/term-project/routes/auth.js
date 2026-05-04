@@ -6,7 +6,15 @@ import User from '../models/User.js';
 const router = express.Router();
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
+function isAdminUser(user) {
+  return Boolean(user && user.role === 'admin');
+}
+
 function loginAndRedirect(req, res, next, user) {
+  if (!isAdminUser(user)) {
+    return res.redirect('/admin/login?error=' + encodeURIComponent('Administrator access required.'));
+  }
+
   req.logIn(user, (err) => {
     if (err) return next(err);
     return res.redirect('/admin/dashboard');
@@ -58,12 +66,15 @@ router.post('/login', [
     if (!user) {
       return res.redirect('/admin/login?error=' + encodeURIComponent(info.message || 'Invalid credentials.'));
     }
+    if (!isAdminUser(user)) {
+      return res.redirect('/admin/login?error=' + encodeURIComponent('Administrator access required.'));
+    }
     return loginAndRedirect(req, res, next, user);
   })(req, res, next);
 });
 
 // GET /admin/auth/google
-router.get('/auth/google', passport.authenticate('google', {
+router.get('/auth/google', passport.authenticate('admin-google', {
   scope: ['profile', 'email']
 }));
 
@@ -106,10 +117,13 @@ router.get('/auth/google/callback', (req, res, next) => {
     return;
   }
 
-  passport.authenticate('google', (err, user, info) => {
+  passport.authenticate('admin-google', (err, user, info) => {
     if (err) return next(err);
     if (!user) {
       return res.redirect('/admin/login?error=Google authentication failed.');
+    }
+    if (!isAdminUser(user)) {
+      return res.redirect('/admin/login?error=' + encodeURIComponent('Administrator access required.'));
     }
     return loginAndRedirect(req, res, next, user);
   })(req, res, next);

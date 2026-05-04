@@ -22,7 +22,7 @@ export default function Header() {
   const handleAdminClick = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    window.location.href = getAdminUrl('/admin/login');
+    window.location.href = auth.user?.role === 'admin' ? getAdminUrl('/admin/dashboard') : getAdminUrl('/admin/login');
   };
 
   const handleLogout = (e) => {

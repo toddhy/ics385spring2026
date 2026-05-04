@@ -90,9 +90,11 @@ router.get('/', async (req, res) => {
 // POST /api/bookings - create a booking or admin block
 router.post('/', isAuthenticated, async (req, res) => {
   try {
-    const { startDate, endDate, notes = '', blockDates = false } = req.body;
+    const { startDate, endDate, notes = '', blockDates = false, guestName = '', guestEmail = '' } = req.body;
     const parsedStart = parseDate(startDate);
     const parsedEnd = parseDate(endDate);
+    const isAdmin = req.user.role === 'admin';
+    const trimmedNotes = typeof notes === 'string' ? notes.trim() : '';
 
     if (!parsedStart || !parsedEnd) {
       return res.status(400).json({ error: 'Valid start and end dates are required.' });
@@ -104,6 +106,12 @@ router.post('/', isAuthenticated, async (req, res) => {
 
     if (blockDates && req.user.role !== 'admin') {
       return res.status(403).json({ error: 'Only administrators can block dates.' });
+    }
+
+    if (isAdmin && !blockDates) {
+      if (!guestName.trim() || !guestEmail.trim()) {
+        return res.status(400).json({ error: 'Visitor name and email are required for administrator bookings.' });
+      }
     }
 
     const conflict = await Booking.findOne({
@@ -120,12 +128,12 @@ router.post('/', isAuthenticated, async (req, res) => {
     const booking = await Booking.create({
       propertyKey: PROPERTY_KEY,
       propertyName: PROPERTY_NAME,
-      guestName: req.user.displayName || req.user.email,
-      guestEmail: req.user.email,
+      guestName: isAdmin && !blockDates ? guestName.trim() : req.user.displayName || req.user.email,
+      guestEmail: isAdmin && !blockDates ? guestEmail.trim() : req.user.email,
       startDate: parsedStart,
       endDate: parsedEnd,
       status: blockDates && req.user.role === 'admin' ? 'blocked' : 'confirmed',
-      notes,
+      notes: trimmedNotes,
       bookedBy: createUserSnapshot(req.user),
     });
 

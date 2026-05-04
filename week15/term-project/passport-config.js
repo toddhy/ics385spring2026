@@ -2,6 +2,21 @@ import { Strategy as LocalStrategy } from 'passport-local';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import User from './models/User.js';
 
+function deriveCallbackUrl(baseUrl, fallbackPath) {
+  if (!baseUrl) {
+    return `http://localhost:3000${fallbackPath}`;
+  }
+
+  if (baseUrl.includes('/admin/auth/google/callback')) {
+    return baseUrl.replace('/admin/auth/google/callback', fallbackPath);
+  }
+
+  return baseUrl;
+}
+
+const ADMIN_GOOGLE_CALLBACK_URL = process.env.GOOGLE_ADMIN_CALLBACK_URL || process.env.GOOGLE_CALLBACK_URL || 'http://localhost:3000/admin/auth/google/callback';
+const USER_GOOGLE_CALLBACK_URL = process.env.GOOGLE_USER_CALLBACK_URL || deriveCallbackUrl(process.env.GOOGLE_CALLBACK_URL, '/auth/google/callback');
+
 function initialize(passport) {
   const authenticateUser = async (email, password, done) => {
     try {
@@ -28,46 +43,54 @@ function initialize(passport) {
   passport.use(new LocalStrategy({ usernameField: 'email' }, authenticateUser));
 
   // Google Strategy
-  passport.use(new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: process.env.GOOGLE_CALLBACK_URL || 'http://localhost:3000/admin/auth/google/callback'
-  }, async (accessToken, refreshToken, profile, done) => {
+  const handleGoogleProfile = async (profile, done, expectedRole = null) => {
     try {
-      // 1. Match on googleId
       let user = await User.findOne({ googleId: profile.id });
       if (user) {
+        if (expectedRole && user.role !== expectedRole) {
+          return done(null, false, { message: 'Please sign in through the correct portal.' });
+        }
         return done(null, user);
       }
 
-      // 2. Else link to existing local account by verified email
       const email = profile.emails && profile.emails[0] && profile.emails[0].value;
       if (email) {
         user = await User.findOne({ email });
         if (user) {
+          if (expectedRole && user.role !== expectedRole) {
+            return done(null, false, { message: 'Please sign in through the correct portal.' });
+          }
           user.googleId = profile.id;
-          // Note: provider stays 'local' or we could update it, 
-          // but the requirement says 'provider' enum. 
-          // If linked, it's now both, but let's stick to 'google' or the rule logic.
-          // Usually we just mark it as having a googleId now.
           await user.save();
           return done(null, user);
         }
       }
 
-      // 3. Else provision a new user
       const newUser = new User({
         googleId: profile.id,
-        email: email,
+        email,
         displayName: profile.displayName,
-        provider: 'google'
+        provider: 'google',
+        role: expectedRole || 'user'
       });
       await newUser.save();
       return done(null, newUser);
     } catch (err) {
       return done(err);
     }
-  }));
+  };
+
+  passport.use('admin-google', new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: ADMIN_GOOGLE_CALLBACK_URL
+  }, async (accessToken, refreshToken, profile, done) => handleGoogleProfile(profile, done, 'admin')));
+
+  passport.use('user-google', new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: USER_GOOGLE_CALLBACK_URL
+  }, async (accessToken, refreshToken, profile, done) => handleGoogleProfile(profile, done, 'user')));
 
   passport.serializeUser((user, done) => done(null, user.id));
   

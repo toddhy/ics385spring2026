@@ -8,7 +8,6 @@ import CTASection from './components/CTASection';
 import Footer from './components/Footer';
 import WeatherDisplay from './components/dashboard/WeatherDisplay';
 import BookingCalendar from './components/booking/BookingCalendar';
-import VisitorStatsDashboard from './components/dashboard/VisitorStatsDashboard';
 import { getBackendUrl } from './utils/getBackendUrl';
 
 function AuthPage() {
@@ -91,7 +90,6 @@ function AuthPage() {
 }
 
 export default function App() {
-  const [showDashboard, setShowDashboard] = useState(false);
   const [path, setPath] = useState(window.location.pathname);
 
   useEffect(() => {
@@ -102,6 +100,30 @@ export default function App() {
 
   if (path === '/login' || path === '/register') {
     return <AuthPage />;
+  }
+
+  if (path === '/admin/dashboard') {
+    return (
+      <div className="app">
+        <Header />
+        <main className="main-content">
+          <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%', padding: '0 1rem' }}>
+            <section style={{ marginTop: '1rem', marginBottom: '1.5rem', padding: '1.5rem', borderRadius: '24px', background: 'linear-gradient(135deg, #0f172a 0%, #1d4ed8 55%, #0ea5e9 100%)', color: 'white', boxShadow: '0 24px 60px rgba(15,23,42,0.2)' }}>
+              <p style={{ margin: 0, textTransform: 'uppercase', letterSpacing: '0.18em', fontSize: '0.78rem', opacity: 0.8 }}>Admin dashboard</p>
+              <h1 style={{ margin: '0.5rem 0', fontSize: 'clamp(2rem, 4vw, 3.5rem)' }}>Calendar-driven reservation control</h1>
+              <p style={{ margin: 0, maxWidth: '60ch', lineHeight: 1.6, opacity: 0.92 }}>
+                Cancel user reservations, block maintenance dates, or book a stay for a visitor from the same calendar view.
+              </p>
+            </section>
+          </div>
+
+          <div style={{ maxWidth: '1200px', margin: '0 auto', width: '100%', padding: '0 1rem' }}>
+            <BookingCalendar adminMode />
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
   }
 
   const property = {
@@ -120,51 +142,8 @@ export default function App() {
     contactEmail: 'reservations@upcountrygetaway.com'
   };
 
-  if (showDashboard) {
-    return (
-      <div className="app">
-        <button 
-          onClick={() => setShowDashboard(false)} 
-          style={{
-            position: 'fixed',
-            top: '20px',
-            left: '20px',
-            zIndex: 1000,
-            padding: '10px 20px',
-            backgroundColor: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontWeight: 'bold'
-          }}
-        >
-          ← Back to Marketing
-        </button>
-        <VisitorStatsDashboard />
-      </div>
-    );
-  }
-
   return (
     <div className="app">
-      <button 
-        onClick={() => setShowDashboard(true)} 
-        style={{
-          position: 'fixed',
-          bottom: '20px',
-          right: '20px',
-          zIndex: 1000,
-          padding: '10px 20px',
-          backgroundColor: '#0EA5E9',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px',
-          cursor: 'pointer',
-          fontWeight: 'bold'
-        }}
-      >
-        View Dashboard
-      </button>
       <Header />
       
       <main className="main-content">

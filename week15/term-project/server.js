@@ -41,6 +41,7 @@ const helmetConfig = {
       imgSrc: ["'self'", "data:", "https://images.unsplash.com"],
       scriptSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'"],
+      formAction: ["'self'"],
     },
   },
 };
@@ -57,6 +58,11 @@ if (process.env.NODE_ENV === 'production') {
     "'self'",
     "http://localhost:*",
     "https://api.openweathermap.org",
+  ];
+  helmetConfig.contentSecurityPolicy.directives.formAction = [
+    "'self'",
+    FRONTEND_URL,
+    'http://localhost:3000',
   ];
 }
 

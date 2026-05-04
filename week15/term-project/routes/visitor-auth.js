@@ -90,7 +90,7 @@ router.post('/login', [
 });
 
 // GET /auth/google
-router.get('/auth/google', passport.authenticate('google', {
+router.get('/auth/google', passport.authenticate('user-google', {
   scope: ['profile', 'email']
 }));
 
@@ -134,7 +134,7 @@ router.get('/auth/google/callback', (req, res, next) => {
     return;
   }
 
-  passport.authenticate('google', (err, user, info) => {
+  passport.authenticate('user-google', (err, user, info) => {
     if (err) return next(err);
     if (!user) {
       return res.redirect('/login?error=Google authentication failed.');

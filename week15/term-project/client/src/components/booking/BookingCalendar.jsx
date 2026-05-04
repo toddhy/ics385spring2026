@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import './BookingCalendar.css';
-import { getBackendUrl } from '../../utils/getBackendUrl';
+import { getAdminUrl, getBackendUrl } from '../../utils/getBackendUrl';
 
 const PROPERTY_KEY = 'upcountry-honeymoon-getaway';
 const PROPERTY_NAME = 'Upcountry Honeymoon Getaway';
@@ -87,13 +87,16 @@ function buildMonthCells(monthDate, bookings) {
   return cells;
 }
 
-export default function BookingCalendar() {
+export default function BookingCalendar({ adminMode = false }) {
   const [auth, setAuth] = useState({ authenticated: false, user: null });
   const [bookings, setBookings] = useState([]);
   const [currentMonth, setCurrentMonth] = useState(() => new Date());
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [blockDates, setBlockDates] = useState(false);
+  const [guestName, setGuestName] = useState('');
+  const [guestEmail, setGuestEmail] = useState('');
+  const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState('');
@@ -119,6 +122,7 @@ export default function BookingCalendar() {
   }, [activeBookings, auth.user]);
 
   const canManageAllBookings = auth.user?.role === 'admin';
+  const canBookForVisitor = adminMode && canManageAllBookings;
   const monthCells = useMemo(() => buildMonthCells(currentMonth, activeBookings), [currentMonth, activeBookings]);
 
   const selectedConflict = useMemo(() => {
@@ -228,7 +232,7 @@ export default function BookingCalendar() {
     event.preventDefault();
 
     if (!auth.authenticated) {
-      window.location.assign(getAdminUrl('/login'));
+      window.location.assign(adminMode ? getAdminUrl('/admin/login') : '/login');
       return;
     }
 
@@ -242,21 +246,30 @@ export default function BookingCalendar() {
       return;
     }
 
+    if (canBookForVisitor && !blockDates && (!guestName.trim() || !guestEmail.trim())) {
+      setError('Enter a visitor name and email for this reservation.');
+      return;
+    }
+
     try {
       setSubmitting(true);
       setError('');
       setMessage('');
 
-      const response = await fetch('/api/bookings', {
+      const response = await fetch(`${getBackendUrl()}/api/bookings`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           startDate,
           endDate,
           blockDates,
+          guestName: canBookForVisitor ? guestName : undefined,
+          guestEmail: canBookForVisitor ? guestEmail : undefined,
+          notes,
         }),
       });
 
@@ -271,6 +284,9 @@ export default function BookingCalendar() {
       setStartDate('');
       setEndDate('');
       setBlockDates(false);
+      setGuestName('');
+      setGuestEmail('');
+      setNotes('');
     } catch (requestError) {
       setError(requestError.message);
     } finally {
@@ -283,11 +299,12 @@ export default function BookingCalendar() {
       setError('');
       setMessage('');
 
-      const response = await fetch(`/api/bookings/${bookingId}`, {
+      const response = await fetch(`${getBackendUrl()}/api/bookings/${bookingId}`, {
         method: 'DELETE',
         headers: {
           Accept: 'application/json',
         },
+        credentials: 'include',
       });
 
       const data = await response.json();
@@ -308,11 +325,12 @@ export default function BookingCalendar() {
       <div className="booking-shell">
         <div className="booking-intro">
           <div>
-            <p className="booking-eyebrow">Stay planner</p>
-            <h2 id="booking-calendar-title">Book your honeymoon dates</h2>
+            <p className="booking-eyebrow">{adminMode ? 'Administrator calendar' : 'Stay planner'}</p>
+            <h2 id="booking-calendar-title">{adminMode ? 'Manage reservations on the calendar' : 'Book your honeymoon dates'}</h2>
             <p className="booking-copy">
-              Select a stay window, confirm availability, and manage reservations from one calendar.
-              Administrators can also block dates for maintenance or internal holds.
+              {adminMode
+                ? 'Review bookings, cancel existing reservations, or create a new reservation for a visitor directly from the calendar.'
+                : 'Select a stay window, confirm availability, and manage reservations from one calendar. Administrators can also block dates for maintenance or internal holds.'}
             </p>
           </div>
 
@@ -326,17 +344,25 @@ export default function BookingCalendar() {
             ) : (
               <>
                 <strong>Not signed in</strong>
-                <span>Log in to book or cancel a stay.</span>
+                <span>{adminMode ? 'Sign in as an administrator to manage reservations.' : 'Log in to book or cancel a stay.'}</span>
               </>
             )}
             {!auth.authenticated && (
               <div className="booking-auth-actions">
-                <button type="button" className="booking-secondary-button" onClick={() => window.location.assign('/login')}>
-                  Log in
-                </button>
-                <button type="button" className="booking-secondary-button" onClick={() => window.location.assign('/register')}>
-                  Register
-                </button>
+                {adminMode ? (
+                  <button type="button" className="booking-secondary-button" onClick={() => window.location.assign(getAdminUrl('/admin/login'))}>
+                    Admin login
+                  </button>
+                ) : (
+                  <>
+                    <button type="button" className="booking-secondary-button" onClick={() => window.location.assign('/login')}>
+                      Log in
+                    </button>
+                    <button type="button" className="booking-secondary-button" onClick={() => window.location.assign('/register')}>
+                      Register
+                    </button>
+                  </>
+                )}
               </div>
             )}
           </div>
@@ -401,7 +427,7 @@ export default function BookingCalendar() {
 
           <div className="booking-sidebar">
             <div className="booking-card booking-form-card">
-              <h3>Reserve this stay</h3>
+              <h3>{adminMode ? 'Reserve for a visitor' : 'Reserve this stay'}</h3>
               <form onSubmit={handleSubmit} className="booking-form">
                 <label>
                   Start date
@@ -416,8 +442,27 @@ export default function BookingCalendar() {
                 {auth.user?.role === 'admin' && (
                   <label className="booking-checkbox-row">
                     <input type="checkbox" checked={blockDates} onChange={(event) => setBlockDates(event.target.checked)} />
-                    Block these dates as administrator
+                    {adminMode ? 'Block these dates instead of booking a visitor' : 'Block these dates as administrator'}
                   </label>
+                )}
+
+                {canBookForVisitor && !blockDates && (
+                  <>
+                    <label>
+                      Visitor name
+                      <input type="text" value={guestName} onChange={(event) => setGuestName(event.target.value)} placeholder="Guest full name" />
+                    </label>
+
+                    <label>
+                      Visitor email
+                      <input type="email" value={guestEmail} onChange={(event) => setGuestEmail(event.target.value)} placeholder="guest@example.com" />
+                    </label>
+
+                    <label>
+                      Notes
+                      <textarea value={notes} onChange={(event) => setNotes(event.target.value)} placeholder="Optional reservation notes" rows="3" />
+                    </label>
+                  </>
                 )}
 
                 <div className="booking-form-summary">
@@ -430,7 +475,7 @@ export default function BookingCalendar() {
                 {error && <div className="booking-error">{error}</div>}
 
                 <button type="submit" className="booking-primary-button" disabled={!auth.authenticated || submitting}>
-                  {submitting ? 'Saving...' : auth.authenticated ? 'Confirm booking' : 'Log in to book'}
+                  {submitting ? 'Saving...' : auth.authenticated ? (adminMode ? 'Save reservation' : 'Confirm booking') : (adminMode ? 'Admin login required' : 'Log in to book')}
                 </button>
               </form>
             </div>
