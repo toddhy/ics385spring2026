@@ -23,7 +23,7 @@ function loginAndRedirect(req, res, next, user) {
 
 // GET /admin/login
 router.get('/login', (req, res) => {
-  res.render('login', { error: req.query.error });
+  res.render('login', { error: req.query.error, frontendUrl: FRONTEND_URL });
 });
 
 // GET /admin/register
