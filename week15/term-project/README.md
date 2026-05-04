@@ -2,7 +2,7 @@ Maui Honeymoon Getaway Website
 
 Full stack deployment of a website for a Maui vacation rental intended for honeymooners.
 
-Live site: https://ics385spring2026-d4pg.onrender.com/
+Live site: https://ics385spring2026-d4pg.onrender.com/  (No longer works, broke it during development and can't fix without reverting many features).
 
 **Setup**
 
