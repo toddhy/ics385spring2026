@@ -1,15 +1,25 @@
 import express from 'express';
+import path from 'path';
 import passport from 'passport';
 import { body, validationResult } from 'express-validator';
-import User from '../models/User.js';
-import path from 'path';
 import { fileURLToPath } from 'url';
-
-const router = express.Router();
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+import User from '../models/User.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const router = express.Router();
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+const SPA_INDEX_PATH = path.join(__dirname, '..', 'client', 'dist', 'index.html');
+
+function shouldServeSpaIndex(req) {
+  const requestOrigin = `${req.get('x-forwarded-proto') || req.protocol}://${req.get('host')}`;
+
+  try {
+    return new URL(FRONTEND_URL).origin === requestOrigin;
+  } catch {
+    return false;
+  }
+}
 
 function visitorLoginAndRedirect(req, res, next, user) {
   req.logIn(user, (err) => {
@@ -25,21 +35,16 @@ function visitorLoginAndRedirect(req, res, next, user) {
 
 // GET /login - Visitor login page
 router.get('/login', (req, res) => {
-  // If the frontend is served from the same origin as the backend (production),
-  // serve the SPA index so client-side routing can handle /login without redirects.
-  const origin = `${req.protocol}://${req.get('host')}`;
-  if (FRONTEND_URL === origin) {
-    return res.sendFile(path.join(__dirname, '..', 'client', 'dist', 'index.html'));
+  if (shouldServeSpaIndex(req)) {
+    return res.sendFile(SPA_INDEX_PATH);
   }
-  // Otherwise redirect to the configured frontend URL
   return res.redirect(`${FRONTEND_URL}/login${req.query.error ? `?error=${encodeURIComponent(req.query.error)}` : ''}`);
 });
 
 // GET /register - Visitor registration page
 router.get('/register', (req, res) => {
-  const origin = `${req.protocol}://${req.get('host')}`;
-  if (FRONTEND_URL === origin) {
-    return res.sendFile(path.join(__dirname, '..', 'client', 'dist', 'index.html'));
+  if (shouldServeSpaIndex(req)) {
+    return res.sendFile(SPA_INDEX_PATH);
   }
   return res.redirect(`${FRONTEND_URL}/register${req.query.error ? `?error=${encodeURIComponent(req.query.error)}` : ''}`);
 });
