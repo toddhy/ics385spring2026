@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import './BookingCalendar.css';
-import { getAdminUrl } from '../../utils/getBackendUrl';
+import { getBackendUrl } from '../../utils/getBackendUrl';
 
 const PROPERTY_KEY = 'upcountry-honeymoon-getaway';
 const PROPERTY_NAME = 'Upcountry Honeymoon Getaway';
@@ -148,10 +148,11 @@ export default function BookingCalendar() {
   useEffect(() => {
     const fetchStatus = async () => {
       try {
-        const response = await fetch('/api/auth/status', {
+        const response = await fetch(`${getBackendUrl()}/api/auth/status`, {
           headers: {
             Accept: 'application/json',
           },
+          credentials: 'include'
         });
 
         const status = await response.json();
@@ -168,10 +169,11 @@ export default function BookingCalendar() {
     const fetchBookings = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/bookings?month=${monthKey}`, {
+        const response = await fetch(`${getBackendUrl()}/api/bookings?month=${monthKey}`, {
           headers: {
             Accept: 'application/json',
           },
+          credentials: 'include'
         });
 
         if (!response.ok) {
@@ -329,10 +331,10 @@ export default function BookingCalendar() {
             )}
             {!auth.authenticated && (
               <div className="booking-auth-actions">
-                <button type="button" className="booking-secondary-button" onClick={() => window.location.assign(getAdminUrl('/login'))}>
+                <button type="button" className="booking-secondary-button" onClick={() => window.location.assign('/login')}>
                   Log in
                 </button>
-                <button type="button" className="booking-secondary-button" onClick={() => window.location.assign(getAdminUrl('/register'))}>
+                <button type="button" className="booking-secondary-button" onClick={() => window.location.assign('/register')}>
                   Register
                 </button>
               </div>

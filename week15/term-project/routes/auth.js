@@ -4,6 +4,7 @@ import { body, validationResult } from 'express-validator';
 import User from '../models/User.js';
 
 const router = express.Router();
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
 function loginAndRedirect(req, res, next, user) {
   req.logIn(user, (err) => {
@@ -120,7 +121,13 @@ function logout(req, res, next) {
     req.session.destroy((destroyErr) => {
       if (destroyErr) return next(destroyErr);
       res.clearCookie('connect.sid');
-      return res.redirect('/admin/login');
+      // If the client is an AJAX request, respond with JSON so the SPA can handle redirect
+      const accept = req.get('Accept') || '';
+      if (accept.includes('application/json')) {
+        return res.json({ success: true });
+      }
+      // Otherwise redirect to frontend
+      return res.redirect(FRONTEND_URL);
     });
   });
 }

@@ -191,7 +191,18 @@
 </head>
 <body>
     <div class="container">
-        <h1>🌺 Hawaii Tourism Properties</h1>
+        <div class="topbar" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;color:white">
+            <div style="font-size:1.1rem;font-weight:600">🌺 Hawaii Tourism Properties</div>
+            <div>
+                <% if (user) { %>
+                    <span style="margin-right:12px">Signed in as <strong><%= user.email %></strong></span>
+                    <a href="/logout" style="background:#fff;color:#333;padding:8px 12px;border-radius:6px;text-decoration:none;font-weight:600">Logout</a>
+                <% } else { %>
+                    <a href="/login" style="background:rgba(255,255,255,0.12);color:#fff;padding:8px 12px;border-radius:6px;text-decoration:none;margin-right:8px">Sign In</a>
+                    <a href="/register" style="background:rgba(255,255,255,0.12);color:#fff;padding:8px 12px;border-radius:6px;text-decoration:none">Register</a>
+                <% } %>
+            </div>
+        </div>
         
         <div class="filter-section">
             <h2>🔍 Filter Properties</h2>

@@ -31,6 +31,7 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
 
 // Security Middleware - Adjust CSP based on environment
 const helmetConfig = {
@@ -69,7 +70,8 @@ if (process.env.NODE_ENV !== 'test') {
   });
 }
 // Passport Config
-app.use(cors()); // Enable CORS for all routes
+// Restrict CORS to the frontend origin and allow credentials (cookies)
+app.use(cors({ origin: FRONTEND_URL, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
@@ -99,6 +101,11 @@ app.use(session(sessionOptions));
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Make the authenticated user available in all EJS views as `user`
+app.use((req, res, next) => {
+  res.locals.user = req.user;
+  next();
+});
 // Connect to MongoDB
 if (process.env.NODE_ENV !== 'test' && process.env.MONGO_URI) {
   mongoose.connect(process.env.MONGO_URI)
@@ -124,45 +131,21 @@ app.get('*', (req, res, next) => {
       req.path === '/logout') {
     return next();
   }
-  res.sendFile(path.join(__dirname, 'client/dist/index.html'));
+  // Redirect to frontend SPA to keep all frontend routes under the SPA origin
+  return res.redirect(`${FRONTEND_URL}${req.path}`);
 });
 
 export default app;
 
 // GET / - Render properties with optional filters (island, minRating)
 app.get('/', async (req, res) => {
-  try {
-    const { island, minRating } = req.query;
-    const query = {};
-    
-    // Filter by island using $regex for case-insensitive search
-    if (island) {
-      query.island = { $regex: island, $options: 'i' };
-    }
-    
-    // Filter by minimum rating using $gte (greater than or equal) operator
-    // This finds properties that have at least one review with rating >= minRating
-    if (minRating) {
-      const minRatingNum = parseInt(minRating);
-      query['reviews.rating'] = { $gte: minRatingNum };
-    }
-    
-    const properties = await Property.find(query);
-    
-    res.render('index', { properties, island, minRating });
-  } catch (error) {
-    res.status(500).send('Error: ' + error.message);
-  }
+  // Frontend handles rendering; redirect to SPA
+  return res.redirect(`${FRONTEND_URL}${req.path}`);
 });
 
 // GET /properties - Render all properties (basic EJS listing)
 app.get('/properties', async (req, res) => {
-  try {
-    const properties = await Property.find();
-    res.render('properties-list', { properties });
-  } catch (error) {
-    res.status(500).send('Error: ' + error.message);
-  }
+  return res.redirect(`${FRONTEND_URL}${req.path}`);
 });
 
 // GET /api/properties - Get all properties (JSON API) with optional filters
@@ -218,17 +201,7 @@ app.get('/api/properties/:id', async (req, res) => {
 
 // GET /properties/:id - Render property details page
 app.get('/properties/:id', async (req, res) => {
-  try {
-    const property = await Property.findById(req.params.id);
-    
-    if (!property) {
-      return res.status(404).send('Property not found');
-    }
-    
-    res.render('property', { property });
-  } catch (error) {
-    res.status(500).send('Error: ' + error.message);
-  }
+  return res.redirect(`${FRONTEND_URL}${req.path}`);
 });
 
 // POST /properties/:id/reviews - Add a review to a property
