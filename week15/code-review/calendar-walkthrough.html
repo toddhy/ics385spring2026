@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar Implementation - Code Walkthrough</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .page {
+            max-width: 11in;
+            background-color: white;
+            margin: 0 auto 30px;
+            padding: 0.75in;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            page-break-after: always;
+        }
+        
+        h1 {
+            font-size: 24px;
+            color: #0066cc;
+            border-bottom: 3px solid #0066cc;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        h2 {
+            font-size: 16px;
+            color: #0066cc;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            border-left: 4px solid #0066cc;
+            padding-left: 12px;
+        }
+        
+        h3 {
+            font-size: 13px;
+            color: #444;
+            margin-top: 15px;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        
+        .file-header {
+            background-color: #f0f0f0;
+            border-left: 4px solid #0099cc;
+            padding: 10px;
+            margin: 12px 0 10px 0;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        
+        .section-box {
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .code-block {
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            padding: 12px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            line-height: 1.4;
+            margin: 10px 0;
+            border-left: 3px solid #0099cc;
+        }
+        
+        .code-block .line {
+            display: block;
+        }
+        
+        .line-num {
+            color: #858585;
+            margin-right: 10px;
+            display: inline-block;
+            width: 30px;
+            text-align: right;
+        }
+        
+        .keyword {
+            color: #569cd6;
+        }
+        
+        .string {
+            color: #ce9178;
+        }
+        
+        .function {
+            color: #dcdcaa;
+        }
+        
+        .comment {
+            color: #6a9955;
+        }
+        
+        .property {
+            color: #9cdcfe;
+        }
+        
+        ul, ol {
+            margin-left: 20px;
+            margin-bottom: 10px;
+        }
+        
+        li {
+            margin-bottom: 5px;
+            font-size: 12px;
+        }
+        
+        .feature-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .feature-item {
+            background-color: #e8f4f8;
+            border-left: 3px solid #0099cc;
+            padding: 10px;
+            font-size: 11px;
+        }
+        
+        .data-flow {
+            background-color: #f0f8e8;
+            border-left: 3px solid #66bb6a;
+            padding: 12px;
+            margin: 10px 0;
+            font-size: 11px;
+            font-family: monospace;
+            line-height: 1.5;
+        }
+        
+        .function-sig {
+            background-color: #fef3e8;
+            border-left: 3px solid #f57c00;
+            padding: 10px;
+            margin: 8px 0;
+            font-size: 11px;
+            font-family: monospace;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+            font-size: 11px;
+        }
+        
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #0066cc;
+            color: white;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .endpoint {
+            background-color: #e3f2fd;
+            border-left: 3px solid #1976d2;
+            padding: 10px;
+            margin: 8px 0;
+            font-size: 11px;
+            font-family: monospace;
+        }
+        
+        .endpoint-method {
+            color: #1976d2;
+            font-weight: bold;
+        }
+        
+        .page-break {
+            page-break-after: always;
+            height: 20px;
+        }
+        
+        .footer {
+            font-size: 9px;
+            color: #999;
+            text-align: center;
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+        }
+        
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+            }
+            .page {
+                box-shadow: none;
+                margin: 0;
+                page-break-inside: avoid;
+            }
+        }
+        
+        @page {
+            size: letter;
+            margin: 0.5in;
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <h1>🗓️ Calendar Implementation Code Walkthrough</h1>
+        <p style="text-align: center; color: #666; font-size: 12px; margin-bottom: 15px;">
+            Honeymoon Booking System | React Frontend + Express Backend
+        </p>
+
+        <h2>📋 Overview</h2>
+        <p style="font-size: 12px; margin-bottom: 10px;">
+            The calendar system handles guest bookings and admin date blocking for a honeymoon property. It features:
+        </p>
+        <div class="feature-list">
+            <div class="feature-item">✓ Monthly calendar view with availability</div>
+            <div class="feature-item">✓ Guest booking & cancellation</div>
+            <div class="feature-item">✓ Admin-only date blocking</div>
+            <div class="feature-item">✓ Conflict detection</div>
+            <div class="feature-item">✓ Role-based access control</div>
+            <div class="feature-item">✓ Real-time booking updates</div>
+        </div>
+
+        <h2>🏗️ Architecture</h2>
+        <div class="data-flow">
+            Frontend (React)                    Backend (Express)
+              ↓                                  ↓
+            BookingCalendar.jsx          routes/bookings.js
+              ├─ Calendar grid             ├─ GET /api/bookings
+              ├─ Date selection            ├─ POST /api/bookings
+              └─ Booking form              └─ DELETE /api/bookings/:id
+                                                  ↓
+                                           MongoDB (Booking model)
+        </div>
+
+        <h2>📁 Files</h2>
+        <table>
+            <tr>
+                <th>File</th>
+                <th>Purpose</th>
+                <th>Lines</th>
+            </tr>
+            <tr>
+                <td>client/src/components/booking/BookingCalendar.jsx</td>
+                <td>React component (calendar, form, state)</td>
+                <td>~550</td>
+            </tr>
+            <tr>
+                <td>routes/bookings.js</td>
+                <td>Express API endpoints</td>
+                <td>~190</td>
+            </tr>
+            <tr>
+                <td>models/Booking.js</td>
+                <td>Mongoose schema</td>
+                <td>~60</td>
+            </tr>
+            <tr>
+                <td>client/src/components/booking/BookingCalendar.css</td>
+                <td>Calendar styling</td>
+                <td>~300</td>
+            </tr>
+        </table>
+
+        <h2>🔑 Key Functions & Data Flow</h2>
+
+        <h3>Helper Functions (Lines 1–86)</h3>
+        <div class="section-box">
+            <div class="function-sig">toLocalDateKey(date) → "YYYY-MM-DD"</div>
+            <p style="font-size: 11px; margin-bottom: 5px;">Converts a Date to ISO string key for consistent date comparison.</p>
+            
+            <div class="function-sig">fromDateInput(value) → Date or null</div>
+            <p style="font-size: 11px; margin-bottom: 5px;">Parses HTML date input to JS Date (handles timezone).</p>
+            
+            <div class="function-sig">normalizeBooking(booking) → normalized object</div>
+            <p style="font-size: 11px;">Converts MongoDB booking to JSON-safe object (converts ObjectIds to strings).</p>
+        </div>
+
+        <h3>Calendar Grid Builder (Lines 63–84)</h3>
+        <div class="file-header">client/src/components/booking/BookingCalendar.jsx</div>
+        <div class="code-block">
+<span class="line"><span class="line-num">63</span> <span class="keyword">function</span> <span class="function">buildMonthCells</span>(monthDate, bookings) {</span>
+<span class="line"><span class="line-num">64</span>   <span class="keyword">const</span> cells = []; <span class="comment">// Empty cells for day-of-week offset</span></span>
+<span class="line"><span class="line-num">65</span>   <span class="keyword">for</span> (let dayNumber = <span class="keyword">1</span>; dayNumber &lt;= totalDays; dayNumber++) {</span>
+<span class="line"><span class="line-num">66</span>     <span class="keyword">const</span> key = toLocalDateKey(date);</span>
+<span class="line"><span class="line-num">67</span>     <span class="keyword">const</span> booking = bookings.find(...); <span class="comment">// Check if date overlaps</span></span>
+<span class="line"><span class="line-num">68</span>     cells.push({ date, key, dayNumber, booking });</span>
+<span class="line"><span class="line-num">69</span>   }</span>
+<span class="line"><span class="line-num">70</span>   <span class="keyword">return</span> cells;</span>
+<span class="line"><span class="line-num">71</span> }</span>
+        </div>
+
+        <h2>⚛️ React Component State & Hooks (Lines 90–113)</h2>
+        <table>
+            <tr>
+                <th>State</th>
+                <th>Type</th>
+                <th>Purpose</th>
+            </tr>
+            <tr>
+                <td>auth</td>
+                <td>object</td>
+                <td>Current user (authenticated, role, id)</td>
+            </tr>
+            <tr>
+                <td>bookings</td>
+                <td>array</td>
+                <td>All active bookings for month</td>
+            </tr>
+            <tr>
+                <td>startDate, endDate</td>
+                <td>string</td>
+                <td>Selected date range (HTML date format)</td>
+            </tr>
+            <tr>
+                <td>blockDates</td>
+                <td>bool</td>
+                <td>Admin intent to block vs. book</td>
+            </tr>
+            <tr>
+                <td>guestName, guestEmail</td>
+                <td>string</td>
+                <td>Visitor info (admin booking only)</td>
+            </tr>
+        </table>
+
+        <h3>useEffect Hooks</h3>
+        <div class="function-sig">useEffect (Line 149) → Fetch auth status on mount</div>
+        <p style="font-size: 11px; margin-bottom: 8px;">Calls <code>/api/auth/status</code>, updates <code>auth</code> state.</p>
+        
+        <div class="function-sig">useEffect (Line 169) → Fetch bookings when monthKey changes</div>
+        <p style="font-size: 11px;">Calls <code>/api/bookings?month=2025-05</code>, updates <code>bookings</code> state.</p>
+
+    </div>
+
+    <div class="page">
+        <h1>📦 Frontend Logic (Continued)</h1>
+
+        <h2>Event Handlers</h2>
+
+        <h3>handleDayClick(cell) — Lines 210–227</h3>
+        <p style="font-size: 12px; margin-bottom: 8px;">User clicks a calendar day. Three states:</p>
+        <div class="section-box">
+            <strong>State 1: No start date yet</strong><br/>
+            <span style="font-size: 11px;">Set <code>startDate = cell.key</code>, clear endDate</span><br/><br/>
+            
+            <strong>State 2: Start set, no end yet</strong><br/>
+            <span style="font-size: 11px;">If clicked date < startDate, swap them. Else set <code>endDate</code>.</span><br/><br/>
+            
+            <strong>State 3: Both set</strong><br/>
+            <span style="font-size: 11px;">Reset to State 1 (start fresh selection)</span>
+        </div>
+
+        <h3>handleSubmit(event) — Lines 229–285</h3>
+        <div class="file-header">client/src/components/booking/BookingCalendar.jsx</div>
+        <div class="code-block">
+<span class="line"><span class="line-num">237</span> <span class="comment">// Validation checks:</span></span>
+<span class="line"><span class="line-num">238</span> <span class="keyword">if</span> (!auth.authenticated) redirect to login</span>
+<span class="line"><span class="line-num">241</span> <span class="keyword">if</span> (!startDate || !endDate) error</span>
+<span class="line"><span class="line-num">245</span> <span class="keyword">if</span> (selectedConflict) error <span class="comment">// Overlaps existing booking</span></span>
+<span class="line"><span class="line-num">249</span> <span class="keyword">if</span> (admin &amp;&amp; !blockDates &amp;&amp; no guestName/email) error</span>
+<span class="line"><span class="line-num">254</span></span>
+<span class="line"><span class="line-num">255</span> <span class="comment">// POST to backend</span></span>
+<span class="line"><span class="line-num">256</span> fetch(<span class="string">'/api/bookings'</span>, {</span>
+<span class="line"><span class="line-num">257</span>   method: <span class="string">'POST'</span>,</span>
+<span class="line"><span class="line-num">258</span>   body: { startDate, endDate, blockDates, guestName, guestEmail }</span>
+<span class="line"><span class="line-num">259</span> })</span>
+        </div>
+
+        <h3>handleCancel(bookingId) — Lines 287–308</h3>
+        <p style="font-size: 12px; margin-bottom: 8px;"><code>DELETE /api/bookings/:id</code> → removes booking from local state</p>
+
+        <h2>🎨 Render (Lines 321–550)</h2>
+
+        <h3>Auth Status Card (Lines 333–366)</h3>
+        <p style="font-size: 12px; margin-bottom: 8px;">Displays current user & login buttons (if not authenticated).</p>
+
+        <h3>Calendar Grid (Lines 394–419)</h3>
+        <div class="code-block">
+<span class="line"><span class="line-num">394</span> &lt;div className=<span class="string">"calendar-grid"</span>&gt;</span>
+<span class="line"><span class="line-num">398</span>   {[<span class="string">'Sun'</span>, <span class="string">'Mon'</span>, ...].map(weekday =&gt; ...)} <span class="comment">// Header</span></span>
+<span class="line"><span class="line-num">401</span>   {monthCells.map((cell) =&gt; {</span>
+<span class="line"><span class="line-num">402</span>     <span class="keyword">if</span> (!cell) return &lt;div className=<span class="string">"empty"</span> /&gt; <span class="comment">// Day offset</span></span>
+<span class="line"><span class="line-num">404</span>     <span class="keyword">const</span> isSelected = cell.key in [startDate, endDate] range</span>
+<span class="line"><span class="line-num">405</span>     <span class="keyword">const</span> bookingClass = cell.booking?.status</span>
+<span class="line"><span class="line-num">407</span>     &lt;button className={<span class="string">`${bookingClass} ${selected}`</span>}&gt;</span>
+<span class="line"><span class="line-num">408</span>       cell.dayNumber</span>
+<span class="line"><span class="line-num">409</span>     &lt;/button&gt;</span>
+<span class="line"><span class="line-num">410</span>   })}</span>
+<span class="line"><span class="line-num">411</span> &lt;/div&gt;</span>
+        </div>
+
+        <h3>Booking Form (Lines 425–490)</h3>
+        <ul style="font-size: 12px;">
+            <li>Date inputs (start/end) → manually set or via calendar click</li>
+            <li>Admin checkbox → "Block dates" option (admin only, line 451)</li>
+            <li>Guest fields (name/email) → shown only if admin booking non-blocked (line 454)</li>
+            <li>Summary → displays night count (line 461)</li>
+            <li>Submit button → disabled until authenticated (line 467)</li>
+        </ul>
+
+        <h3>Upcoming Reservations List (Lines 492–550)</h3>
+        <p style="font-size: 12px; margin-bottom: 8px;">Displays all active bookings with cancel button (if owner or admin).</p>
+
+    </div>
+
+    <div class="page">
+        <h1>🔗 Backend API Routes</h1>
+        <p style="font-size: 12px; margin-bottom: 10px; color: #666;">File: <code>routes/bookings.js</code> (~190 lines)</p>
+
+        <h2>Helper Functions</h2>
+
+        <h3>normalizeBooking(booking) — Lines 8–24</h3>
+        <p style="font-size: 12px; margin-bottom: 8px;">Converts MongoDB Booking doc to plain JSON (ObjectIds → strings).</p>
+
+        <h3>getMonthBounds(monthValue) — Lines 26–41</h3>
+        <div class="code-block">
+<span class="line"><span class="line-num">26</span> <span class="function">getMonthBounds</span>(<span class="string">'2025-05'</span>) <span class="comment">// Input: "YYYY-MM"</span></span>
+<span class="line"><span class="line-num">27</span> <span class="keyword">→</span> { start: 2025-05-01T00:00:00, end: 2025-05-31T23:59:59 }</span>
+</div>
+        <p style="font-size: 11px;">Used for querying bookings within a calendar month.</p>
+
+        <h3>parseDate(value) — Lines 43–54</h3>
+        <p style="font-size: 12px; margin-bottom: 8px;">Parses ISO date string, normalizes time to 12:00 UTC (consistent timezone handling).</p>
+
+        <h3>createUserSnapshot(user) — Lines 56–61</h3>
+        <p style="font-size: 12px; margin-bottom: 8px;">Creates immutable user record: { userId, email, displayName, role }.</p>
+
+        <h2>🟢 GET /api/bookings (Line 63–82)</h2>
+
+        <div class="endpoint">
+            <span class="endpoint-method">GET</span> /api/bookings?month=2025-05<br/>
+            Query: <code>activeBookings.filter(b =&gt; b.status in ['confirmed', 'blocked'])</code>
+        </div>
+
+        <h3>Parameters:</h3>
+        <ul style="font-size: 12px;">
+            <li><code>month</code> (optional, string): "YYYY-MM" format (defaults to current month)</li>
+        </ul>
+
+        <h3>Logic (Line 72–81):</h3>
+        <div class="file-header">routes/bookings.js</div>
+        <div class="code-block">
+<span class="line"><span class="line-num">72</span> <span class="keyword">const</span> { start, end } = getMonthBounds(month);</span>
+<span class="line"><span class="line-num">73</span> Booking.find({</span>
+<span class="line"><span class="line-num">74</span>   propertyKey: <span class="string">'upcountry-honeymoon-getaway'</span>,</span>
+<span class="line"><span class="line-num">75</span>   status: { $in: [<span class="string">'confirmed'</span>, <span class="string">'blocked'</span>] },</span>
+<span class="line"><span class="line-num">76</span>   startDate: { $lte: end },        <span class="comment">// Booking starts ≤ month-end</span></span>
+<span class="line"><span class="line-num">77</span>   endDate: { $gte: start },         <span class="comment">// Booking ends ≥ month-start</span></span>
+<span class="line"><span class="line-num">78</span> }).sort({ startDate: <span class="keyword">1</span> })</span>
+</span>
+        </div>
+
+        <h3>Response:</h3>
+        <div class="section-box" style="font-size: 11px; font-family: monospace;">
+            [<br/>
+            &nbsp;&nbsp;{ _id: "...", guestName: "John", startDate: "2025-05-10", endDate: "2025-05-15", status: "confirmed", ... },<br/>
+            &nbsp;&nbsp;{ ... }<br/>
+            ]
+        </div>
+
+        <h2>🟢 POST /api/bookings (Line 84–143)</h2>
+
+        <div class="endpoint">
+            <span class="endpoint-method">POST</span> /api/bookings<br/>
+            Requires authentication. Create booking or admin date block.
+        </div>
+
+        <h3>Request Body:</h3>
+        <div class="section-box" style="font-size: 11px; font-family: monospace;">
+            {<br/>
+            &nbsp;&nbsp;"startDate": "2025-05-10",<br/>
+            &nbsp;&nbsp;"endDate": "2025-05-15",<br/>
+            &nbsp;&nbsp;"blockDates": false,<br/>
+            &nbsp;&nbsp;"guestName": "Jane Doe" (admin only),<br/>
+            &nbsp;&nbsp;"guestEmail": "jane@example.com" (admin only),<br/>
+            &nbsp;&nbsp;"notes": "Honeymoon suite"<br/>
+            }
+        </div>
+
+        <h3>Validation (Lines 101–122):</h3>
+        <div class="file-header">routes/bookings.js</div>
+        <div class="code-block">
+<span class="line"><span class="line-num">103</span> <span class="keyword">if</span> (!parsedStart || !parsedEnd) → 400 <span class="string">"Valid dates required"</span></span>
+<span class="line"><span class="line-num">108</span> <span class="keyword">if</span> (blockDates &amp;&amp; !isAdmin) → 403 <span class="string">"Admin only"</span></span>
+<span class="line"><span class="line-num">113</span> <span class="keyword">if</span> (isAdmin &amp;&amp; !blockDates &amp;&amp; !guestName) → 400</span>
+<span class="line"><span class="line-num">119</span> <span class="keyword">const</span> conflict = check for overlapping active bookings</span>
+<span class="line"><span class="line-num">123</span> <span class="keyword">if</span> (conflict) → 409 <span class="string">"Date range already reserved"</span></span>
+        </div>
+
+        <h3>Creation (Lines 125–136):</h3>
+        <div class="file-header">routes/bookings.js</div>
+        <div class="code-block">
+<span class="line"><span class="line-num">125</span> <span class="keyword">const</span> booking = Booking.create({</span>
+<span class="line"><span class="line-num">126</span>   guestName: isAdmin ? guestName : req.user.email,</span>
+<span class="line"><span class="line-num">127</span>   guestEmail: isAdmin ? guestEmail : req.user.email,</span>
+<span class="line"><span class="line-num">128</span>   status: blockDates ? <span class="string">'blocked'</span> : <span class="string">'confirmed'</span>,</span>
+<span class="line"><span class="line-num">131</span>   bookedBy: createUserSnapshot(req.user),</span>
+<span class="line"><span class="line-num">132</span> })</span>
+        </div>
+
+        <h3>Response: 201 Created</h3>
+        <p style="font-size: 12px;">Returns normalized booking object.</p>
+
+        <h2>🟴 DELETE /api/bookings/:id (Line 145–179)</h2>
+
+        <div class="endpoint">
+            <span class="endpoint-method">DELETE</span> /api/bookings/:id<br/>
+            Requires authentication. Cancel your own or any as admin.
+        </div>
+
+        <h3>Authorization (Lines 159–163):</h3>
+        <div class="file-header">routes/bookings.js</div>
+        <div class="code-block">
+<span class="line"><span class="line-num">159</span> <span class="keyword">const</span> isOwner = booking.bookedBy.userId === req.user._id</span>
+<span class="line"><span class="line-num">160</span> <span class="keyword">const</span> canCancel = req.user.role === <span class="string">'admin'</span> || isOwner</span>
+<span class="line"><span class="line-num">161</span> <span class="keyword">if</span> (!canCancel) → 403 <span class="string">"Can only cancel your own"</span></span>
+        </div>
+
+        <h3>Cancellation (Lines 164–173):</h3>
+        <div class="file-header">routes/bookings.js</div>
+        <div class="code-block">
+<span class="line"><span class="line-num">164</span> booking.status = <span class="string">'cancelled'</span></span>
+<span class="line"><span class="line-num">165</span> booking.cancelledAt = <span class="keyword">new</span> Date()</span>
+<span class="line"><span class="line-num">166</span> booking.cancelledBy = createUserSnapshot(req.user)</span>
+<span class="line"><span class="line-num">167</span> await booking.save()</span>
+        </div>
+
+    </div>
+
+    <div class="page">
+        <h1>🗄️ Data Models</h1>
+
+        <h2>Booking Schema (models/Booking.js)</h2>
+
+        <table style="font-size: 11px;">
+            <tr>
+                <th>Field</th>
+                <th>Type</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>propertyKey</td>
+                <td>String</td>
+                <td>Unique ID for property (e.g., "upcountry-honeymoon-getaway")</td>
+            </tr>
+            <tr>
+                <td>propertyName</td>
+                <td>String</td>
+                <td>Display name</td>
+            </tr>
+            <tr>
+                <td>guestName</td>
+                <td>String</td>
+                <td>Visitor full name</td>
+            </tr>
+            <tr>
+                <td>guestEmail</td>
+                <td>String</td>
+                <td>Visitor email</td>
+            </tr>
+            <tr>
+                <td>startDate</td>
+                <td>Date</td>
+                <td>Check-in (normalized to 12:00 UTC)</td>
+            </tr>
+            <tr>
+                <td>endDate</td>
+                <td>Date</td>
+                <td>Check-out (normalized to 12:00 UTC)</td>
+            </tr>
+            <tr>
+                <td>status</td>
+                <td>String</td>
+                <td>Enum: 'confirmed' | 'blocked' | 'cancelled'</td>
+            </tr>
+            <tr>
+                <td>notes</td>
+                <td>String</td>
+                <td>Optional reservation notes</td>
+            </tr>
+            <tr>
+                <td>bookedBy</td>
+                <td>Object</td>
+                <td>User snapshot: { userId, email, displayName, role }</td>
+            </tr>
+            <tr>
+                <td>cancelledBy</td>
+                <td>Object</td>
+                <td>User who cancelled (if status='cancelled')</td>
+            </tr>
+            <tr>
+                <td>cancelledAt</td>
+                <td>Date</td>
+                <td>When booking was cancelled</td>
+            </tr>
+            <tr>
+                <td>createdAt, updatedAt</td>
+                <td>Date</td>
+                <td>Timestamps</td>
+            </tr>
+        </table>
+
+        <h2>🔐 Security & Access Control</h2>
+
+        <div class="section-box">
+            <h3>Authentication</h3>
+            <ul style="font-size: 11px;">
+                <li>All POST/DELETE routes require <code>isAuthenticated</code> middleware</li>
+                <li>GET /api/bookings is public (no auth required)</li>
+            </ul>
+
+            <h3>Authorization</h3>
+            <ul style="font-size: 11px;">
+                <li><strong>blockDates:</strong> Admin-only (line 108)</li>
+                <li><strong>Cancel booking:</strong> Owner or admin (line 160)</li>
+                <li><strong>Book for visitor:</strong> Admin only (line 114)</li>
+            </ul>
+
+            <h3>Data Isolation</h3>
+            <ul style="font-size: 11px;">
+                <li>All queries filter by propertyKey</li>
+                <li>User snapshots immutable (prevent spoofing)</li>
+            </ul>
+        </div>
+
+        <h2>⚠️ Error Handling</h2>
+
+        <table style="font-size: 11px;">
+            <tr>
+                <th>Code</th>
+                <th>Scenario</th>
+                <th>Line</th>
+            </tr>
+            <tr>
+                <td>400</td>
+                <td>Invalid dates, missing guest info</td>
+                <td>104, 113</td>
+            </tr>
+            <tr>
+                <td>403</td>
+                <td>Unauthorized (non-admin block, not owner)</td>
+                <td>108, 161</td>
+            </tr>
+            <tr>
+                <td>404</td>
+                <td>Booking not found</td>
+                <td>154</td>
+            </tr>
+            <tr>
+                <td>409</td>
+                <td>Date conflict</td>
+                <td>123</td>
+            </tr>
+            <tr>
+                <td>500</td>
+                <td>Server error</td>
+                <td>140, 180</td>
+            </tr>
+        </table>
+
+        <h2>💡 Key Design Patterns</h2>
+
+        <div class="section-box" style="font-size: 11px;">
+            <strong>1. Normalized Date Keys</strong><br/>
+            Uses "YYYY-MM-DD" strings for reliable date comparison across timezones.<br/><br/>
+
+            <strong>2. User Snapshots</strong><br/>
+            Stores user data at booking time (immutable record of who booked).<br/><br/>
+
+            <strong>3. Soft Delete</strong><br/>
+            Bookings marked 'cancelled' not removed (preserves history).<br/><br/>
+
+            <strong>4. Conflict Detection</strong><br/>
+            MongoDB $lte/$gte on start/end dates (overlapping range query).<br/><br/>
+
+            <strong>5. Dual-Mode Calendar</strong><br/>
+            Guest view (book own) vs. Admin view (book/block for visitors).
+        </div>
+
+        <div class="footer">
+            Calendar Implementation Walkthrough | ICS 385 Term Project | Week 15
+        </div>
+    </div>
+
+</body>
+</html>

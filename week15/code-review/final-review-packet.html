@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ICS 385 Code Review Packet</title>
+  <style>
+    :root {
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --accent: #0b6cff;
+      --accent-soft: #eaf1ff;
+      --line: #d1d5db;
+      --ok: #0f766e;
+      --warn: #b45309;
+      --bg: #ffffff;
+      --mono: Consolas, "Courier New", monospace;
+      --sans: "Segoe UI", Tahoma, Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 24px;
+      font-family: var(--sans);
+      color: var(--ink);
+      background: #f3f4f6;
+      line-height: 1.45;
+    }
+
+    .page {
+      width: 8.5in;
+      min-height: 11in;
+      margin: 0 auto 18px auto;
+      background: var(--bg);
+      box-shadow: 0 6px 22px rgba(0, 0, 0, 0.12);
+      padding: 0.55in;
+      page-break-after: always;
+    }
+
+    h1 {
+      margin: 0 0 8px 0;
+      font-size: 24px;
+      letter-spacing: 0.2px;
+    }
+
+    h2 {
+      margin: 18px 0 8px 0;
+      font-size: 16px;
+      border-left: 4px solid var(--accent);
+      padding-left: 9px;
+    }
+
+    h3 {
+      margin: 12px 0 6px 0;
+      font-size: 13px;
+    }
+
+    p, li {
+      font-size: 12px;
+    }
+
+    .muted { color: var(--muted); }
+
+    .banner {
+      background: linear-gradient(135deg, #0b6cff, #2f80ff);
+      color: white;
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin: 10px 0 14px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      background: #fff;
+    }
+
+    .timing {
+      background: var(--accent-soft);
+      border-left: 4px solid var(--accent);
+      padding: 9px 10px;
+      margin: 8px 0;
+      font-size: 12px;
+    }
+
+    .fileline {
+      background: #111827;
+      color: #f9fafb;
+      border-radius: 6px;
+      padding: 6px 10px;
+      margin: 8px 0 0 0;
+      font-family: var(--mono);
+      font-size: 11px;
+    }
+
+    pre {
+      margin: 0 0 10px 0;
+      padding: 10px;
+      overflow-x: auto;
+      border: 1px solid #e5e7eb;
+      border-top: none;
+      border-radius: 0 0 6px 6px;
+      font-family: var(--mono);
+      font-size: 11px;
+      line-height: 1.4;
+      background: #f9fafb;
+      white-space: pre;
+    }
+
+    .small { font-size: 11px; }
+
+    .pill {
+      display: inline-block;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      margin-right: 6px;
+      margin-bottom: 5px;
+      background: #fff;
+    }
+
+    .checklist li { margin-bottom: 4px; }
+
+    .footer {
+      margin-top: 14px;
+      padding-top: 8px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 10px;
+      text-align: center;
+    }
+
+    img.diagram {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      margin: 6px 0 10px 0;
+    }
+
+    @media print {
+      body { background: white; padding: 0; }
+      .page { box-shadow: none; margin: 0; }
+    }
+
+    @page {
+      size: Letter;
+      margin: 0.5in;
+    }
+  </style>
+</head>
+<body>
+  <section class="page">
+    <h1>ICS 385 Week 16 Code Review Packet</h1>
+    <p class="muted">Prepared for a 5-minute presentation and Q&A. This packet combines your study plan, script, demo checklist, and calendar walkthrough.</p>
+
+    <div class="banner">
+      <strong>Core Project Story:</strong> Booking platform with React UI, Express service layer, MongoDB/Mongoose data model, external API integrations, and local + Google authentication.
+    </div>
+
+    <h2>1) Beginner Mental Model</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>The One-Sentence Explanation</h3>
+        <p>This app lets visitors reserve dates on a property calendar while admins can also block dates or manage any booking.</p>
+      </div>
+      <div class="card">
+        <h3>The Main Data Journey</h3>
+        <p>User clicks dates -> React validates -> Express checks conflicts/auth -> MongoDB saves -> React updates calendar.</p>
+      </div>
+    </div>
+
+    <h3>What to learn first (in order)</h3>
+    <ol>
+      <li>What users do on screen (calendar selection and booking submit).</li>
+      <li>How frontend sends request to backend.</li>
+      <li>How backend validates dates and authorization.</li>
+      <li>How booking records are stored and returned.</li>
+      <li>How UI refreshes after successful operations.</li>
+    </ol>
+
+    <h2>2) 5-Minute Presentation Script</h2>
+    <div class="timing"><strong>0:00-1:00 PRD Highlights</strong>: Show PRD cover, problem statement, target segment, acceptance criteria table.</div>
+    <div class="timing"><strong>1:00-2:00 Live Demo</strong>: Marketing page -> dashboard -> login -> protected admin action -> logout.</div>
+    <div class="timing"><strong>2:00-3:00 Code Walkthrough</strong>: Explain one complex component end-to-end.</div>
+    <div class="timing"><strong>3:00-5:00 Q&A</strong>: Concise answers; if unsure, explain how you would investigate.</div>
+
+    <h3>Exact 30-second code intro line</h3>
+    <p class="card">"I will walk through the calendar flow: selecting dates in React, posting to the bookings API, server-side conflict checks, and how MongoDB persistence returns data to refresh the calendar UI."</p>
+
+    <h2>3) Live Demo Checklist</h2>
+    <ul class="checklist">
+      <li>PRD open in one tab (already on acceptance criteria section).</li>
+      <li>Render URL bookmarked and tested in fresh incognito.</li>
+      <li>Guest and admin credentials ready.</li>
+      <li>VS Code pre-opened to calendar and bookings route files.</li>
+      <li>Fallback: if live demo fails, switch to code walkthrough immediately.</li>
+    </ul>
+
+    <div class="footer">Packet file: week15/code-review/final-review-packet.html</div>
+  </section>
+
+  <section class="page">
+    <h1>Calendar Walkthrough (Frontend)</h1>
+    <p class="muted">Focus file: <strong>week15/term-project/client/src/components/booking/BookingCalendar.jsx</strong></p>
+
+    <h2>4) Key Frontend Areas to Explain</h2>
+    <p>
+      <span class="pill">State management</span>
+      <span class="pill">Date parsing/normalization</span>
+      <span class="pill">Conflict preview</span>
+      <span class="pill">API fetch + submit</span>
+      <span class="pill">Conditional render by role</span>
+    </p>
+
+    <h3>Snippet A: Month grid builder (file + lines)</h3>
+    <div class="fileline">File: week15/term-project/client/src/components/booking/BookingCalendar.jsx | Lines: 63-84</div>
+    <pre>function buildMonthCells(monthDate, bookings) {
+  const year = monthDate.getFullYear();
+  const month = monthDate.getMonth();
+  const firstOfMonth = new Date(year, month, 1, 12, 0, 0, 0);
+  const startDay = firstOfMonth.getDay();
+  const totalDays = new Date(year, month + 1, 0).getDate();
+  const cells = Array.from({ length: startDay }, () => null);
+
+  for (let dayNumber = 1; dayNumber <= totalDays; dayNumber += 1) {
+    const date = new Date(year, month, dayNumber, 12, 0, 0, 0);
+    const key = toLocalDateKey(date);
+    const booking = bookings.find((item) => item.startKey <= key && item.endKey >= key);
+    cells.push({ date, key, dayNumber, booking });
+  }
+  return cells;
+}</pre>
+    <p class="small">Explanation: builds blank leading cells + each day cell, then tags booked dates by overlap.</p>
+
+    <h3>Snippet B: Fetch bookings by month</h3>
+    <div class="fileline">File: week15/term-project/client/src/components/booking/BookingCalendar.jsx | Lines: 169-193</div>
+    <pre>useEffect(() => {
+  const fetchBookings = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${getBackendUrl()}/api/bookings?month=${monthKey}`, {
+        headers: { Accept: 'application/json' },
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error('Failed to load booking calendar');
+      const data = await response.json();
+      setBookings(data.map(normalizeBooking));
+      setError('');
+    } catch (requestError) {
+      setError(requestError.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchBookings();
+}, [monthKey]);</pre>
+    <p class="small">Explanation: whenever month changes, reload availability from backend for that month.</p>
+
+    <h3>Snippet C: Submit booking with client-side guards</h3>
+    <div class="fileline">File: week15/term-project/client/src/components/booking/BookingCalendar.jsx | Lines: 229-285</div>
+    <pre>const handleSubmit = async (event) => {
+  event.preventDefault();
+
+  if (!auth.authenticated) {
+    window.location.assign(adminMode ? getAdminUrl('/admin/login') : '/login');
+    return;
+  }
+  if (!startDate || !endDate) {
+    setError('Choose both a start and end date.');
+    return;
+  }
+  if (selectedConflict) {
+    setError('Those dates overlap with an existing booking.');
+    return;
+  }
+
+  const response = await fetch(`${getBackendUrl()}/api/bookings`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ startDate, endDate, blockDates, notes })
+  });
+};</pre>
+    <p class="small">Explanation: validates user and dates first, then sends normalized payload to server.</p>
+
+    <div class="footer">Frontend walkthrough source: BookingCalendar.jsx</div>
+  </section>
+
+  <section class="page">
+    <h1>Calendar Walkthrough (Backend + Q&A)</h1>
+    <p class="muted">Focus file: <strong>week15/term-project/routes/bookings.js</strong></p>
+
+    <h2>5) API Endpoints to Explain</h2>
+    <ul>
+      <li><strong>GET /api/bookings</strong> returns active bookings for target month.</li>
+      <li><strong>POST /api/bookings</strong> creates booking or admin block with conflict checks.</li>
+      <li><strong>DELETE /api/bookings/:id</strong> cancels own booking or any booking as admin.</li>
+    </ul>
+
+    <h3>Snippet D: Month overlap query</h3>
+    <div class="fileline">File: week15/term-project/routes/bookings.js | Lines: 71-84</div>
+    <pre>const bookings = await Booking.find({
+  propertyKey: PROPERTY_KEY,
+  status: { $in: ACTIVE_STATUSES },
+  startDate: { $lte: end },
+  endDate: { $gte: start },
+}).sort({ startDate: 1, createdAt: 1 });
+
+res.json(bookings.map(normalizeBooking));</pre>
+    <p class="small">Explanation: classic overlap condition; includes reservations that touch any day in the month.</p>
+
+    <h3>Snippet E: Conflict detection on create</h3>
+    <div class="fileline">File: week15/term-project/routes/bookings.js | Lines: 119-123</div>
+    <pre>const conflict = await Booking.findOne({
+  propertyKey: PROPERTY_KEY,
+  status: { $in: ACTIVE_STATUSES },
+  startDate: { $lte: parsedEnd },
+  endDate: { $gte: parsedStart },
+});
+if (conflict) {
+  return res.status(409).json({ error: 'That date range is already reserved.' });
+}</pre>
+    <p class="small">Explanation: prevents double-booking by rejecting overlapping confirmed/blocked ranges.</p>
+
+    <h3>Snippet F: Authorization for cancellation</h3>
+    <div class="fileline">File: week15/term-project/routes/bookings.js | Lines: 158-163</div>
+    <pre>const isOwner = booking.bookedBy?.userId &&
+  booking.bookedBy.userId.toString() === req.user._id.toString();
+const canCancel = req.user.role === 'admin' || isOwner;
+
+if (!canCancel) {
+  return res.status(403).json({ error: 'You can only cancel your own booking.' });
+}</pre>
+    <p class="small">Explanation: role + ownership based authorization.</p>
+
+    <h2>6) Q&A Quick Answers</h2>
+    <ul>
+      <li><strong>How do you prevent overlap?</strong> Backend overlap query with $lte/$gte before create (409 on conflict).</li>
+      <li><strong>Why normalize dates?</strong> Avoid timezone drift and keep day-based comparison stable.</li>
+      <li><strong>Why soft cancel?</strong> Preserves reservation history and accountability.</li>
+      <li><strong>How does admin differ?</strong> Admin can block dates and cancel any booking.</li>
+      <li><strong>If you do not know an answer?</strong> "I would reproduce with logs and verify request/DB state."</li>
+    </ul>
+
+    <h2>7) Diagrams (optional in review)</h2>
+    <p class="small">Include these only if time allows.</p>
+    <img class="diagram" src="architecture.png" alt="System architecture diagram" />
+    <img class="diagram" src="auth-flow.png" alt="Authentication flow diagram" />
+
+    <div class="footer">Print this file to PDF: open in browser -> Ctrl+P -> Save as PDF</div>
+  </section>
+</body>
+</html>

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Week 16 Code Review Cheat Sheet</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.5;
+            color: #333;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 8.5in;
+            height: 11in;
+            background-color: white;
+            margin: 0 auto;
+            padding: 0.5in;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        h1 {
+            font-size: 20px;
+            text-align: center;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #0066cc;
+            padding-bottom: 5px;
+        }
+        
+        .subtitle {
+            font-size: 12px;
+            text-align: center;
+            color: #666;
+            margin-bottom: 12px;
+        }
+        
+        h2 {
+            font-size: 13px;
+            font-weight: bold;
+            margin-top: 10px;
+            margin-bottom: 6px;
+            color: #0066cc;
+            border-left: 3px solid #0066cc;
+            padding-left: 8px;
+        }
+        
+        h3 {
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 8px;
+            margin-bottom: 4px;
+            color: #444;
+        }
+        
+        ul {
+            margin-left: 16px;
+            margin-bottom: 8px;
+        }
+        
+        li {
+            font-size: 11px;
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+        
+        ol {
+            margin-left: 16px;
+            margin-bottom: 8px;
+        }
+        
+        ol li {
+            font-size: 11px;
+            margin-bottom: 2px;
+            line-height: 1.3;
+        }
+        
+        strong {
+            color: #000;
+        }
+        
+        code {
+            background-color: #f0f0f0;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 10px;
+        }
+        
+        a {
+            color: #0066cc;
+            text-decoration: none;
+            font-size: 10px;
+        }
+        
+        .timing-bar {
+            background-color: #e8f4f8;
+            border-left: 3px solid #0099cc;
+            padding: 8px 10px;
+            margin: 8px 0;
+            font-size: 11px;
+            font-weight: bold;
+            border-radius: 3px;
+        }
+        
+        .section-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .section-box {
+            border: 1px solid #ddd;
+            padding: 8px;
+            border-radius: 4px;
+            background-color: #fafafa;
+            font-size: 10px;
+        }
+        
+        .section-box h3 {
+            margin-top: 0;
+            margin-bottom: 4px;
+        }
+        
+        .section-box li {
+            font-size: 10px;
+            margin-bottom: 2px;
+        }
+        
+        .qa-item {
+            font-size: 10px;
+            margin-bottom: 6px;
+            line-height: 1.3;
+        }
+        
+        .qa-item strong {
+            display: block;
+            margin-bottom: 2px;
+            color: #0066cc;
+        }
+        
+        .footer {
+            font-size: 9px;
+            color: #999;
+            text-align: center;
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px solid #ddd;
+        }
+        
+        @media print {
+            body {
+                background-color: white;
+                padding: 0;
+            }
+            .container {
+                max-width: 100%;
+                height: auto;
+                box-shadow: none;
+                margin: 0;
+                padding: 0.5in;
+            }
+        }
+        
+        @page {
+            size: letter;
+            margin: 0.5in;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Week 16 Code Review Cheat Sheet</h1>
+        <div class="subtitle">5-minute presentation prep (Wks 10–16 arc)</div>
+        
+        <div class="section-grid">
+            <div class="section-box">
+                <h3>PRD Highlights (0:00–1:00)</h3>
+                <ul>
+                    <li>Open PRD_v3.pdf</li>
+                    <li>Show cover, problem statement, target, acceptance criteria</li>
+                    <li><strong>Pitch:</strong> "Weeks 10–16 added data model → server + external APIs → React UI → auth."</li>
+                </ul>
+            </div>
+            
+            <div class="section-box">
+                <h3>Live Demo (1:00–2:00)</h3>
+                <ol>
+                    <li>Marketing page</li>
+                    <li>Dashboard (Chart.js + weather)</li>
+                    <li>Login (local or Google)</li>
+                    <li>Admin action (update DB)</li>
+                    <li>Logout</li>
+                </ol>
+            </div>
+            
+            <div class="section-box">
+                <h3>Code Walk-through (2:00–3:00)</h3>
+                <ul>
+                    <li>Pick 1 component (≥15 lines)</li>
+                    <li>Explain intent, logic, error handling</li>
+                    <li>Best picks: Mongoose schema, auth callback, API route, React useEffect</li>
+                </ul>
+            </div>
+            
+            <div class="section-box">
+                <h3>Q&A (3:00–5:00)</h3>
+                <ul>
+                    <li>Answer concisely</li>
+                    <li>Unknown? "I'd investigate by…"</li>
+                    <li>Never bluff</li>
+                </ul>
+            </div>
+        </div>
+        
+        <h2>Key Week Topics</h2>
+        <ul>
+            <li><strong>Wk 10–11:</strong> Schema choices, validation, embedded vs refs</li>
+            <li><strong>Wk 5–9:</strong> Express routes, middleware, external APIs, error handling</li>
+            <li><strong>Wk 12–13:</strong> React useEffect, Chart.js, data transforms</li>
+            <li><strong>Wk 14–15:</strong> Passport local + Google, verify callback, session/JWT, route protection</li>
+        </ul>
+        
+        <h2>Q&A Answers (Two lines each)</h2>
+        <div class="qa-item">
+            <strong>Why embedded reviews?</strong>
+            Fast reads, simpler transactions. Use refs if reviews are large or shared.
+        </div>
+        <div class="qa-item">
+            <strong>Dashboard data fetch?</strong>
+            <code>useEffect</code> calls <code>/api/dashboard</code>; server aggregates Mongo + OpenWeatherMap → JSON → Chart.js.
+        </div>
+        <div class="qa-item">
+            <strong>OAuth callback?</strong>
+            Exchange code → read profile → find/create user in MongoDB → session/JWT → redirect.
+        </div>
+        <div class="qa-item">
+            <strong>Protected routes?</strong>
+            Middleware checks <code>isAuthenticated()</code> or JWT → proceed to handler.
+        </div>
+        <div class="qa-item">
+            <strong>External API failures?</strong>
+            Try/catch, timeouts, log, graceful fallback (cached data or UI message).
+        </div>
+        
+        <h2>Contingency Phrases</h2>
+        <ul>
+            <li>"I'd investigate by checking logs, reproducing locally, and adding unit tests."</li>
+            <li>"I chose simpler schema for speed; at scale I'd migrate to referenced docs."</li>
+        </ul>
+        
+        <div class="footer">
+            ICS 385 — Week 16 Code Review | Tuesday, May 5, 4:30 PM
+        </div>
+    </div>
+</body>
+</html>
