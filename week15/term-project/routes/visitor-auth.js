@@ -2,9 +2,14 @@ import express from 'express';
 import passport from 'passport';
 import { body, validationResult } from 'express-validator';
 import User from '../models/User.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const router = express.Router();
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:5173';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 function visitorLoginAndRedirect(req, res, next, user) {
   req.logIn(user, (err) => {
@@ -20,13 +25,22 @@ function visitorLoginAndRedirect(req, res, next, user) {
 
 // GET /login - Visitor login page
 router.get('/login', (req, res) => {
-  // Frontend SPA handles the login UI
+  // If the frontend is served from the same origin as the backend (production),
+  // serve the SPA index so client-side routing can handle /login without redirects.
+  const origin = `${req.protocol}://${req.get('host')}`;
+  if (FRONTEND_URL === origin) {
+    return res.sendFile(path.join(__dirname, '..', 'client', 'dist', 'index.html'));
+  }
+  // Otherwise redirect to the configured frontend URL
   return res.redirect(`${FRONTEND_URL}/login${req.query.error ? `?error=${encodeURIComponent(req.query.error)}` : ''}`);
 });
 
 // GET /register - Visitor registration page
 router.get('/register', (req, res) => {
-  // Frontend SPA handles the registration UI
+  const origin = `${req.protocol}://${req.get('host')}`;
+  if (FRONTEND_URL === origin) {
+    return res.sendFile(path.join(__dirname, '..', 'client', 'dist', 'index.html'));
+  }
   return res.redirect(`${FRONTEND_URL}/register${req.query.error ? `?error=${encodeURIComponent(req.query.error)}` : ''}`);
 });
 
