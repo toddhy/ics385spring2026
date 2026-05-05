@@ -1,0 +1,286 @@
+Calendar Implementation Code Walkthrough
+Honeymoon Booking System | React Frontend + Express Backend
+
+Overview
+The calendar system handles guest bookings and admin date blocking for a honeymoon property. It features:
+- Monthly calendar view with availability
+- Guest booking and cancellation
+- Admin-only date blocking
+- Conflict detection
+- Role-based access control
+- Real-time booking updates
+
+Architecture
+Frontend (React)                    Backend (Express)
+  ->                                  ->
+BookingCalendar.jsx              routes/bookings.js
+  |- Calendar grid                 |- GET /api/bookings
+  |- Date selection                |- POST /api/bookings
+  |- Booking form                  |- DELETE /api/bookings/:id
+                                      ->
+                                 MongoDB (Booking model)
+
+Files
+- client/src/components/booking/BookingCalendar.jsx: React component (calendar, form, state), about 550 lines
+- routes/bookings.js: Express API endpoints, about 190 lines
+- models/Booking.js: Mongoose schema, about 60 lines
+- client/src/components/booking/BookingCalendar.css: Calendar styling, about 300 lines
+
+Key Functions and Data Flow
+
+Helper Functions (Lines 1-86)
+- toLocalDateKey(date) -> "YYYY-MM-DD"
+  Converts a Date to ISO string key for consistent date comparison.
+- fromDateInput(value) -> Date or null
+  Parses HTML date input to JS Date (handles timezone).
+- normalizeBooking(booking) -> normalized object
+  Converts MongoDB booking to JSON-safe object (converts ObjectIds to strings).
+
+Calendar Grid Builder (Lines 63-84)
+File: client/src/components/booking/BookingCalendar.jsx
+
+Code block:
+63  function buildMonthCells(monthDate, bookings) {
+64    const cells = []; // Empty cells for day-of-week offset
+65    for (let dayNumber = 1; dayNumber <= totalDays; dayNumber++) {
+66      const key = toLocalDateKey(date);
+67      const booking = bookings.find(...); // Check if date overlaps
+68      cells.push({ date, key, dayNumber, booking });
+69    }
+70    return cells;
+71  }
+
+React Component State and Hooks (Lines 90-113)
+- auth (object): Current user (authenticated, role, id)
+- bookings (array): All active bookings for month
+- startDate, endDate (string): Selected date range (HTML date format)
+- blockDates (bool): Admin intent to block vs. book
+- guestName, guestEmail (string): Visitor info (admin booking only)
+
+useEffect Hooks
+- useEffect (Line 149): Fetch auth status on mount
+  Calls /api/auth/status, updates auth state.
+- useEffect (Line 169): Fetch bookings when monthKey changes
+  Calls /api/bookings?month=2025-05, updates bookings state.
+
+Frontend Logic (Continued)
+
+Event Handlers
+
+handleDayClick(cell) - Lines 210-227
+User clicks a calendar day. Three states:
+- State 1: No start date yet
+  Set startDate = cell.key, clear endDate
+- State 2: Start set, no end yet
+  If clicked date < startDate, swap them. Else set endDate.
+- State 3: Both set
+  Reset to State 1 (start fresh selection)
+
+handleSubmit(event) - Lines 229-285
+File: client/src/components/booking/BookingCalendar.jsx
+
+Code block:
+237  // Validation checks:
+238  if (!auth.authenticated) redirect to login
+241  if (!startDate || !endDate) error
+245  if (selectedConflict) error // Overlaps existing booking
+249  if (admin && !blockDates && no guestName/email) error
+254
+255  // POST to backend
+256  fetch('/api/bookings', {
+257    method: 'POST',
+258    body: { startDate, endDate, blockDates, guestName, guestEmail }
+259  })
+
+handleCancel(bookingId) - Lines 287-308
+DELETE /api/bookings/:id -> removes booking from local state
+
+Render (Lines 321-550)
+
+Auth Status Card (Lines 333-366)
+Displays current user and login buttons (if not authenticated).
+
+Calendar Grid (Lines 394-419)
+Code block:
+394  <div className="calendar-grid">
+398    {['Sun', 'Mon', ...].map(weekday => ...)} // Header
+401    {monthCells.map((cell) => {
+402      if (!cell) return <div className="empty" /> // Day offset
+404      const isSelected = cell.key in [startDate, endDate] range
+405      const bookingClass = cell.booking?.status
+407      <button className={`${bookingClass} ${selected}`}>
+408        cell.dayNumber
+409      </button>
+410    })}
+411  </div>
+
+Booking Form (Lines 425-490)
+- Date inputs (start/end): manually set or via calendar click
+- Admin checkbox: "Block dates" option (admin only, line 451)
+- Guest fields (name/email): shown only if admin booking non-blocked (line 454)
+- Summary: displays night count (line 461)
+- Submit button: disabled until authenticated (line 467)
+
+Upcoming Reservations List (Lines 492-550)
+Displays all active bookings with cancel button (if owner or admin).
+
+Backend API Routes
+File: routes/bookings.js (about 190 lines)
+
+Helper Functions
+
+normalizeBooking(booking) - Lines 8-24
+Converts MongoDB Booking doc to plain JSON (ObjectIds -> strings).
+
+getMonthBounds(monthValue) - Lines 26-41
+Code block:
+26  getMonthBounds('2025-05') // Input: "YYYY-MM"
+27  -> { start: 2025-05-01T00:00:00, end: 2025-05-31T23:59:59 }
+
+Used for querying bookings within a calendar month.
+
+parseDate(value) - Lines 43-54
+Parses ISO date string, normalizes time to 12:00 UTC (consistent timezone handling).
+
+createUserSnapshot(user) - Lines 56-61
+Creates immutable user record: { userId, email, displayName, role }.
+
+GET /api/bookings (Line 63-82)
+GET /api/bookings?month=2025-05
+Query: activeBookings.filter(b => b.status in ['confirmed', 'blocked'])
+
+Parameters:
+- month (optional, string): "YYYY-MM" format (defaults to current month)
+
+Logic (Line 72-81)
+File: routes/bookings.js
+
+Code block:
+72  const { start, end } = getMonthBounds(month);
+73  Booking.find({
+74    propertyKey: 'upcountry-honeymoon-getaway',
+75    status: { $in: ['confirmed', 'blocked'] },
+76    startDate: { $lte: end },        // Booking starts <= month-end
+77    endDate: { $gte: start },        // Booking ends >= month-start
+78  }).sort({ startDate: 1 })
+
+Response:
+[
+  { _id: "...", guestName: "John", startDate: "2025-05-10", endDate: "2025-05-15", status: "confirmed", ... },
+  { ... }
+]
+
+POST /api/bookings (Line 84-143)
+POST /api/bookings
+Requires authentication. Create booking or admin date block.
+
+Request Body:
+{
+  "startDate": "2025-05-10",
+  "endDate": "2025-05-15",
+  "blockDates": false,
+  "guestName": "Jane Doe" (admin only),
+  "guestEmail": "jane@example.com" (admin only),
+  "notes": "Honeymoon suite"
+}
+
+Validation (Lines 101-122)
+File: routes/bookings.js
+
+Code block:
+103  if (!parsedStart || !parsedEnd) -> 400 "Valid dates required"
+108  if (blockDates && !isAdmin) -> 403 "Admin only"
+113  if (isAdmin && !blockDates && !guestName) -> 400
+119  const conflict = check for overlapping active bookings
+123  if (conflict) -> 409 "Date range already reserved"
+
+Creation (Lines 125-136)
+File: routes/bookings.js
+
+Code block:
+125  const booking = Booking.create({
+126    guestName: isAdmin ? guestName : req.user.email,
+127    guestEmail: isAdmin ? guestEmail : req.user.email,
+128    status: blockDates ? 'blocked' : 'confirmed',
+131    bookedBy: createUserSnapshot(req.user),
+132  })
+
+Response: 201 Created
+Returns normalized booking object.
+
+DELETE /api/bookings/:id (Line 145-179)
+DELETE /api/bookings/:id
+Requires authentication. Cancel your own or any as admin.
+
+Authorization (Lines 159-163)
+File: routes/bookings.js
+
+Code block:
+159  const isOwner = booking.bookedBy.userId === req.user._id
+160  const canCancel = req.user.role === 'admin' || isOwner
+161  if (!canCancel) -> 403 "Can only cancel your own"
+
+Cancellation (Lines 164-173)
+File: routes/bookings.js
+
+Code block:
+164  booking.status = 'cancelled'
+165  booking.cancelledAt = new Date()
+166  booking.cancelledBy = createUserSnapshot(req.user)
+167  await booking.save()
+
+Data Models
+
+Booking Schema (models/Booking.js)
+- propertyKey (String): Unique ID for property (for example, "upcountry-honeymoon-getaway")
+- propertyName (String): Display name
+- guestName (String): Visitor full name
+- guestEmail (String): Visitor email
+- startDate (Date): Check-in (normalized to 12:00 UTC)
+- endDate (Date): Check-out (normalized to 12:00 UTC)
+- status (String): Enum: 'confirmed' | 'blocked' | 'cancelled'
+- notes (String): Optional reservation notes
+- bookedBy (Object): User snapshot: { userId, email, displayName, role }
+- cancelledBy (Object): User who cancelled (if status='cancelled')
+- cancelledAt (Date): When booking was cancelled
+- createdAt, updatedAt (Date): Timestamps
+
+Security and Access Control
+
+Authentication
+- All POST/DELETE routes require isAuthenticated middleware
+- GET /api/bookings is public (no auth required)
+
+Authorization
+- blockDates: Admin-only (line 108)
+- Cancel booking: Owner or admin (line 160)
+- Book for visitor: Admin only (line 114)
+
+Data Isolation
+- All queries filter by propertyKey
+- User snapshots immutable (prevent spoofing)
+
+Error Handling
+- 400: Invalid dates, missing guest info (lines 104, 113)
+- 403: Unauthorized (non-admin block, not owner) (lines 108, 161)
+- 404: Booking not found (line 154)
+- 409: Date conflict (line 123)
+- 500: Server error (lines 140, 180)
+
+Key Design Patterns
+1. Normalized Date Keys
+Uses "YYYY-MM-DD" strings for reliable date comparison across timezones.
+
+2. User Snapshots
+Stores user data at booking time (immutable record of who booked).
+
+3. Soft Delete
+Bookings marked 'cancelled' not removed (preserves history).
+
+4. Conflict Detection
+MongoDB $lte/$gte on start/end dates (overlapping range query).
+
+5. Dual-Mode Calendar
+Guest view (book own) vs. Admin view (book/block for visitors).
+
+Calendar Implementation Walkthrough | ICS 385 Term Project | Week 15

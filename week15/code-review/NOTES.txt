@@ -1,0 +1,42 @@
+Schema
+models/Booking.js
+    Data structure behind guest bookings and admin blocks
+
+    Booking status L35-40
+    bookedBy, cancelledBy L45-76
+
+Backend Routes
+routes/bookings.js
+    Get bookings L71-88
+    Create bookings L91-144
+    Delete bookingsL147-178
+
+    Conflict management L117-126
+
+Frontend
+client/src/components/booking/BookingCalendar.jsx
+    Build month cells L66-88
+    Range selection L208-229
+    Range submit L231-295
+    Cancellation L297-321
+
+Backend security and roles
+routes/bookings.js
+    Write operations require isAuthenticated middleware L91-178
+    Admin block dates L107-115
+    Only cancel own booking L159-163
+
+Google Authentication
+routes/visitor-auth.js
+    Google auth created with user role L117-163
+routes/auth.js
+    Google auth admin L82-130
+passport.js
+    L83-93 distinguish user from admin
+
+Admin dashboard
+routes/admin.js
+    Only admin access dashboard L12-33
+client/src/components/booking/BookingCalendar.jsx
+    only admin block dates L442-447
+
